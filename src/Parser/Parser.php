@@ -132,6 +132,7 @@ class Parser
 
                 return new ParameterNode($token->getValue());
 
+            // phpcs:ignore
             case Token::TYPE_PUNCTUATION:
                 if ($token->getValue() === '(') {
                     $stream->next();

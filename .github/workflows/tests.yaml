@@ -72,14 +72,8 @@ jobs:
                     php-version: "${{ matrix.php }}"
                     tools: "composer"
 
-            -   name: Install vendors (stable)
+            -   name: Install vendors
                 run: composer install --prefer-dist
-
-            -   name: Run tests
-                run: bin/phpunit
-
-            -   name: Install vendors (lowest)
-                run: composer update --prefer-lowest
 
             -   name: Run tests
                 run: bin/phpunit
