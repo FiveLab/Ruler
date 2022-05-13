@@ -1,0 +1,19 @@
+{
+    "rule": "id NOT IN (:ids)",
+    "params": {
+        "ids": ["123", "124"]
+    },
+    "query": {
+        "bool": {
+            "must_not": [
+                {
+                    "terms": {
+                        "id": {
+                            "value": ["123", "124"]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

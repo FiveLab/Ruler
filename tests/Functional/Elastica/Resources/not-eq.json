@@ -1,0 +1,19 @@
+{
+    "rule": "id != :id",
+    "params": {
+        "id": "123"
+    },
+    "query": {
+        "bool": {
+            "must_not": [
+                {
+                    "term": {
+                        "id": {
+                            "value": "123"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "rule": "id = :id AND published != :published",
+    "params": {
+        "id": "123",
+        "published": true
+    },
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "bool": {
+                        "must": [
+                            {
+                                "term": {
+                                    "id": {
+                                        "value":"123"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "bool": {
+                        "must_not": [
+                            {
+                                "term": {
+                                    "published": {
+                                        "value": true
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

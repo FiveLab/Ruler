@@ -1,0 +1,40 @@
+{
+    "rule": "id = :id OR primary = :primary",
+    "params": {
+        "id": 123,
+        "primary": true
+    },
+    "query": {
+        "bool": {
+            "should": [
+                {
+                    "bool": {
+                        "must": [
+                            {
+                                "term": {
+                                    "id": {
+                                        "value": 123
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "bool": {
+                        "must": [
+                            {
+                                "term": {
+                                    "primary": {
+                                        "value": true
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "minimum_should_match": 1
+        }
+    }
+}

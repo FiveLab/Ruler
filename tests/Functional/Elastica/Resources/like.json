@@ -1,0 +1,13 @@
+{
+    "rule": "author like :name",
+    "params": {
+        "name": "*smith*"
+    },
+    "query": {
+        "wildcard": {
+            "author": {
+                "value": "*smith*"
+            }
+        }
+    }
+}

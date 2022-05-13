@@ -1,0 +1,57 @@
+{
+    "rule": "author.name = :name AND likes.total > :likes AND post\\.publishedAt > :now",
+    "params": {
+        "name": "smith",
+        "likes": 100,
+        "now": 12345
+    },
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "bool": {
+                        "must": [
+                            {
+                                "nested": {
+                                    "path": "author",
+                                    "query": {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "author.name": {
+                                                            "value": "smith"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "nested": {
+                                    "path": "likes",
+                                    "query": {
+                                        "range": {
+                                            "likes.total": {
+                                                "gt": 100
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "range": {
+                        "post.publishedAt": {
+                            "gt": 12345
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

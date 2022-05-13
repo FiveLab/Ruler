@@ -1,0 +1,13 @@
+{
+    "rule": "total <= :total",
+    "params": {
+        "total": "555"
+    },
+    "query": {
+        "range": {
+            "total": {
+                "lte": "555"
+            }
+        }
+    }
+}
