@@ -52,6 +52,7 @@ class ElasticaExecutor implements ExecutorInterface
      */
     public function execute(object $target, Node $node, array $parameters): void
     {
+        /** @var array<string, mixed> $query */
         $query = $this->visitor->visit($target, $node, $parameters, $this->operators);
 
         $target->setRawQuery([
