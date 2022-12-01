@@ -25,8 +25,8 @@ class ElasticSearchOperatorsConfigurator implements OperatorsConfiguratorInterfa
     {
         $operators->add('=', self::makeTermCallableForOperator('must', 'term'));
         $operators->add('!=', self::makeTermCallableForOperator('must_not', 'term'));
-        $operators->add('in', self::makeTermCallableForOperator('must', 'terms'));
-        $operators->add('not in', self::makeTermCallableForOperator('must_not', 'terms'));
+        $operators->add('in', self::makeTermCallableForOperator('must', 'terms', false));
+        $operators->add('not in', self::makeTermCallableForOperator('must_not', 'terms', false));
 
         $operators->add('>=', self::makeRangeCallableForOperator('gte'));
         $operators->add('>', self::makeRangeCallableForOperator('gt'));
@@ -86,20 +86,21 @@ class ElasticSearchOperatorsConfigurator implements OperatorsConfiguratorInterfa
      *
      * @param string $esOperator
      * @param string $filterOperator
+     * @param bool   $useValueKey
      *
      * @return \Closure
      */
-    private static function makeTermCallableForOperator(string $esOperator, string $filterOperator): \Closure
+    private static function makeTermCallableForOperator(string $esOperator, string $filterOperator, bool $useValueKey = true): \Closure
     {
-        return static function ($a, $b) use ($esOperator, $filterOperator) {
+        return static function ($a, $b) use ($esOperator, $filterOperator, $useValueKey) {
+            $valueEntry = $useValueKey ? ['value' => $b] : $b;
+
             return [
                 'bool' => [
                     $esOperator => [
                         [
                             $filterOperator => [
-                                $a => [
-                                    'value' => $b,
-                                ],
+                                $a => $valueEntry,
                             ],
                         ],
                     ],
