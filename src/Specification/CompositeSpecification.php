@@ -79,6 +79,16 @@ class CompositeSpecification implements SpecificationInterface
     }
 
     /**
+     * Get operator
+     *
+     * @return string
+     */
+    public function getOperator(): string
+    {
+        return $this->operator;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getRule(): string
