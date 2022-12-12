@@ -36,6 +36,47 @@ class SpecificationFilter
     }
 
     /**
+     * Filter specification by target
+     *
+     * @param SpecificationInterface $specification
+     * @param string                 $target
+     *
+     * @return SpecificationInterface
+     */
+    public static function filterByTarget(SpecificationInterface $specification, string $target, $useSimpleAsFallback = true): SpecificationInterface
+    {
+        if ($specification instanceof CompositeSpecification) {
+            $filteredSpecifications = [];
+
+            foreach ($specification->getSpecifications() as $innerSpecification) {
+                $filteredSpecifications[] = self::filterByTarget($innerSpecification, $target, $useSimpleAsFallback);
+            }
+
+            return new CompositeSpecification($specification->getOperator(), ...$filteredSpecifications);
+        }
+
+        if ($specification instanceof TargetableSpecification) {
+            $targetableSpecification = $specification->getForTarget($target);
+
+            if ($targetableSpecification instanceof CompositeSpecification) {
+                return self::filterByTarget($targetableSpecification, $target, $useSimpleAsFallback);
+            }
+
+            return $targetableSpecification;
+        }
+
+        if ($useSimpleAsFallback || TargetableSpecification::TARGET_DEFAULT === $target) {
+            return $specification;
+        }
+
+        throw new \RuntimeException(\sprintf(
+            'Found no-targetable specification "%s" with rule "%s".',
+            \get_class($specification),
+            $specification->getRule()
+        ));
+    }
+
+    /**
      * Filter specification by instanceof
      *
      * @param SpecificationInterface $specification
