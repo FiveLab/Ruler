@@ -134,7 +134,7 @@ class SpecificationFilterTest extends TestCase
 
         self::assertEquals([
             'available' => true,
-            'min_price' => 100
+            'min_price' => 100,
         ], $defaultSpec->getParameters());
     }
 
