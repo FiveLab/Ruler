@@ -40,10 +40,11 @@ class SpecificationFilter
      *
      * @param SpecificationInterface $specification
      * @param string                 $target
+     * @param bool                   $useSimpleAsFallback
      *
      * @return SpecificationInterface
      */
-    public static function filterByTarget(SpecificationInterface $specification, string $target, $useSimpleAsFallback = true): SpecificationInterface
+    public static function filterByTarget(SpecificationInterface $specification, string $target, bool $useSimpleAsFallback = true): SpecificationInterface
     {
         if ($specification instanceof CompositeSpecification) {
             $filteredSpecifications = [];
