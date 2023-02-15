@@ -24,16 +24,6 @@ class RawSearchQuery
     private array $rawQuery;
 
     /**
-     * Constructor.
-     *
-     * @param array<string, mixed> $rawQuery
-     */
-    public function __construct($rawQuery = [])
-    {
-        $this->rawQuery = $rawQuery;
-    }
-
-    /**
      * Sets raw query
      *
      * @param array<string, mixed> $rawQuery
@@ -42,7 +32,7 @@ class RawSearchQuery
      */
     public function setRawQuery(array $rawQuery): self
     {
-        $this->rawQuery = \array_merge($this->rawQuery, $rawQuery);
+        $this->rawQuery = $rawQuery;
 
         return $this;
     }
