@@ -1,6 +1,11 @@
 Changelog
 =========
 
+next release
+------
+
+* Add `FiveLab\Component\Ruler\Query\RawSearchQuery` to support `elasticsearch/elasticsearch` and `opensearch-project/opensearch-php` libraries in `FiveLab\Component\Ruler\Target\ElasticaTarget`.
+
 v1.1.0
 ------
 

@@ -15,7 +15,6 @@ namespace FiveLab\Component\Ruler\Tests\Unit\Executor\DoctrineOrm;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use Elastica\Query;
 use FiveLab\Component\Ruler\Executor\DoctrineOrm\DoctrineOrmVisitor;
 use FiveLab\Component\Ruler\Executor\ExecutionContext;
 use FiveLab\Component\Ruler\Node\Node;
