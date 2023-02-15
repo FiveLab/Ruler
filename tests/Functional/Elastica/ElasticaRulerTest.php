@@ -37,12 +37,12 @@ class ElasticaRulerTest extends TestCase
     /**
      * @test
      *
-     * @param string $file
-     * @param mixed  $query
+     * @param string               $file
+     * @param Query|RawSearchQuery $query
      *
      * @dataProvider provideDataForApply
      */
-    public function shouldSuccessApply(string $file, mixed $query): void
+    public function shouldSuccessApply(string $file, object $query): void
     {
         $data = \json_decode(\file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
 
@@ -58,11 +58,11 @@ class ElasticaRulerTest extends TestCase
     /**
      * @test
      *
-     * @param mixed $query
+     * @param Query|RawSearchQuery $query
      *
      * @dataProvider provideQuery
      */
-    public function shouldFailForMoreNested(mixed $query): void
+    public function shouldFailForMoreNested(object $query): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Only one nested level supported.');
@@ -75,11 +75,11 @@ class ElasticaRulerTest extends TestCase
     /**
      * @test
      *
-     * @param mixed $query
+     * @param Query|RawSearchQuery $query
      *
      * @dataProvider provideQuery
      */
-    public function shouldFailIfParameterMissed(mixed $query): void
+    public function shouldFailIfParameterMissed(object $query): void
     {
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('The parameter "id" is missed. Possible parameters are "foo", "some".');

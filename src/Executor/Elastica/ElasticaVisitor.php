@@ -37,7 +37,7 @@ class ElasticaVisitor
      *
      * @return array<mixed>|string|\Closure
      */
-    public function visit($target, Node $node, array $parameters, Operators $operators)
+    public function visit(object $target, Node $node, array $parameters, Operators $operators)
     {
         if ($node instanceof BinaryNode) {
             $leftSide = $this->visit($target, $node->getLeft(), $parameters, $operators);

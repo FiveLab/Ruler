@@ -36,11 +36,11 @@ class ElasticaTargetTest extends TestCase
     /**
      * @test
      *
-     * @param mixed $query
+     * @param Query|RawSearchQuery $query
      *
      * @dataProvider provideQuery
      */
-    public function shouldSuccessSupports(mixed $query): void
+    public function shouldSuccessSupports(object $query): void
     {
         $supports = $this->target->supports($query);
 

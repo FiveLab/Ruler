@@ -21,7 +21,7 @@ class RawSearchQuery
     /**
      * @var array<string, mixed>
      */
-    private array $rawQuery;
+    private array $rawQuery = [];
 
     /**
      * Sets raw query

@@ -38,11 +38,11 @@ class ElasticaVisitorTest extends TestCase
     /**
      * @test
      *
-     * @param mixed $query
+     * @param Query|RawSearchQuery $query
      *
      * @dataProvider provideQuery
      */
-    public function shouldThrowErrorForUnknownNode(mixed $query): void
+    public function shouldThrowErrorForUnknownNode(object $query): void
     {
         $node = new Node();
 
