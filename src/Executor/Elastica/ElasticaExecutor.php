@@ -17,6 +17,7 @@ use Elastica\Query;
 use FiveLab\Component\Ruler\Executor\ExecutorInterface;
 use FiveLab\Component\Ruler\Node\Node;
 use FiveLab\Component\Ruler\Operator\Operators;
+use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
 /**
  * The executor for elastic search based on "ruflin/elastica" library.
@@ -48,7 +49,7 @@ class ElasticaExecutor implements ExecutorInterface
     /**
      * {@inheritdoc}
      *
-     * @param Query $target
+     * @param Query|RawSearchQuery $target
      */
     public function execute(object $target, Node $node, array $parameters): void
     {

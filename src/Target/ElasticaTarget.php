@@ -19,6 +19,7 @@ use FiveLab\Component\Ruler\Executor\Elastica\ElasticaVisitor;
 use FiveLab\Component\Ruler\Executor\ExecutorInterface;
 use FiveLab\Component\Ruler\Operator\Operators;
 use FiveLab\Component\Ruler\Operator\OperatorsConfigurator;
+use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
 /**
  * The target for ElasticSearch based on "ruflin/elastica" package.
@@ -30,7 +31,7 @@ class ElasticaTarget implements TargetInterface
      */
     public function supports(object $target): bool
     {
-        return $target instanceof Query;
+        return $target instanceof Query || $target instanceof RawSearchQuery;
     }
 
     /**

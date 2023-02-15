@@ -20,6 +20,7 @@ use FiveLab\Component\Ruler\Node\NameNode;
 use FiveLab\Component\Ruler\Node\Node;
 use FiveLab\Component\Ruler\Node\ParameterNode;
 use FiveLab\Component\Ruler\Operator\Operators;
+use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
 /**
  * The visitor for visit nodes for elastic search.
@@ -29,14 +30,14 @@ class ElasticaVisitor
     /**
      * Visit node for target
      *
-     * @param Query                $target
+     * @param Query|RawSearchQuery $target
      * @param Node                 $node
      * @param array<string, mixed> $parameters
      * @param Operators            $operators
      *
      * @return array<mixed>|string|\Closure
      */
-    public function visit(Query $target, Node $node, array $parameters, Operators $operators)
+    public function visit(object $target, Node $node, array $parameters, Operators $operators)
     {
         if ($node instanceof BinaryNode) {
             $leftSide = $this->visit($target, $node->getLeft(), $parameters, $operators);
