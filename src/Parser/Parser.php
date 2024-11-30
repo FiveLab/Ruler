@@ -24,7 +24,7 @@ use FiveLab\Component\Ruler\Node\ParameterNode;
  *
  * @see http://en.wikipedia.org/wiki/Operator-precedence_parser
  */
-class Parser
+readonly class Parser
 {
     /**
      * List of possible precedences
@@ -47,13 +47,6 @@ class Parser
         '/'      => 60,
     ];
 
-    /**
-     * Parse token stream and return nodes
-     *
-     * @param TokenStream $stream
-     *
-     * @return Node
-     */
     public function parse(TokenStream $stream): Node
     {
         $node = $this->parseExpression($stream);
@@ -61,32 +54,24 @@ class Parser
         if (!$stream->isEof()) {
             throw new SyntaxException(\sprintf(
                 'Unexpected token "%s" of value "%s".',
-                $stream->current()->getType(),
-                $stream->current()->getValue()
-            ), $stream->current()->getCursor(), $stream->getExpression());
+                $stream->current()->type,
+                $stream->current()->value
+            ), $stream->current()->cursor, $stream->expression);
         }
 
         return $node;
     }
 
-    /**
-     * Parse expression
-     *
-     * @param TokenStream $stream
-     * @param int         $precedence
-     *
-     * @return Node
-     */
     private function parseExpression(TokenStream $stream, int $precedence = 0): Node
     {
         $expr = $this->parsePrimaryExpression($stream);
         $token = $stream->current();
 
-        while ($token->test(Token::TYPE_OPERATOR) && isset(self::PRECEDENCES[$token->getValue()]) && self::PRECEDENCES[$token->getValue()] >= $precedence) {
+        while ($token->test(Token::TYPE_OPERATOR) && isset(self::PRECEDENCES[$token->value]) && self::PRECEDENCES[$token->value] >= $precedence) {
             $stream->next();
 
-            $expr1 = $this->parseExpression($stream, self::PRECEDENCES[$token->getValue()] + 1);
-            $expr = new BinaryNode($token->getValue(), $expr, $expr1);
+            $expr1 = $this->parseExpression($stream, self::PRECEDENCES[$token->value] + 1);
+            $expr = new BinaryNode($token->value, $expr, $expr1);
 
             $token = $stream->current();
         }
@@ -94,22 +79,15 @@ class Parser
         return $expr;
     }
 
-    /**
-     * Parse primary expression
-     *
-     * @param TokenStream $stream
-     *
-     * @return Node
-     */
     private function parsePrimaryExpression(TokenStream $stream): Node
     {
         $token = $stream->current();
 
-        switch ($token->getType()) {
+        switch ($token->type) {
             case Token::TYPE_PROPERTY:
                 $stream->next();
 
-                switch (\strtolower($token->getValue())) {
+                switch (\strtolower($token->value)) {
                     case 'null':
                         return new ConstantNode(null);
 
@@ -120,21 +98,21 @@ class Parser
                         return new ConstantNode(false);
                 }
 
-                return new NameNode($token->getValue());
+                return new NameNode($token->value);
 
             case Token::TYPE_NUMBER:
                 $stream->next();
 
-                return new ConstantNode($token->getValue());
+                return new ConstantNode($token->value);
 
             case Token::TYPE_PARAMETER:
                 $stream->next();
 
-                return new ParameterNode($token->getValue());
+                return new ParameterNode($token->value);
 
             // phpcs:ignore
             case Token::TYPE_PUNCTUATION:
-                if ($token->getValue() === '(') {
+                if ($token->value === '(') {
                     $stream->next();
 
                     $expr = $this->parseExpression($stream);
@@ -147,9 +125,9 @@ class Parser
             default:
                 throw new SyntaxException(\sprintf(
                     'Unexpected token "%s" of value "%s".',
-                    $token->getType(),
-                    $token->getValue()
-                ), $token->getCursor(), $stream->getExpression());
+                    $token->type,
+                    $token->value
+                ), $token->cursor, $stream->expression);
         }
     }
 }

@@ -11,19 +11,18 @@
 
 declare(strict_types = 1);
 
-namespace FiveLab\Component\Ruler\Unit\Elastica;
+namespace FiveLab\Component\Ruler\Tests\Unit\Target;
 
 use FiveLab\Component\Ruler\Executor\ExecutorInterface;
 use FiveLab\Component\Ruler\Target\TargetInterface;
 use FiveLab\Component\Ruler\Target\Targets;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class TargetsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessSupports(): void
     {
         $targetFactory1 = $this->makeTargetFactory();
@@ -50,9 +49,7 @@ class TargetsTest extends TestCase
         self::assertTrue($targetFactories->supports($target));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotSupports(): void
     {
         $targetFactory = $this->makeTargetFactory();
@@ -68,9 +65,7 @@ class TargetsTest extends TestCase
         self::assertFalse($targetFactories->supports($target));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreateExecutor(): void
     {
         $targetFactory1 = $this->makeTargetFactory();
@@ -106,9 +101,7 @@ class TargetsTest extends TestCase
         self::assertEquals($executor, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldCachedExecutors(): void
     {
         $targetFactory = $this->makeTargetFactory();
@@ -137,9 +130,7 @@ class TargetsTest extends TestCase
         self::assertEquals($executor, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowErrorIfAnyFactorySupported(): void
     {
         $targetFactory = $this->makeTargetFactory();
@@ -158,16 +149,10 @@ class TargetsTest extends TestCase
         $targetFactories->createExecutor($target);
     }
 
-    /**
-     * Make the target mock with unique identifier.
-     *
-     * @return TargetInterface&MockObject
-     */
-    private function makeTargetFactory(): TargetInterface
+    private function makeTargetFactory(): TargetInterface&MockObject
     {
-        $target = $this->createMock(TargetInterface::class);
-        $target->__identifier = \uniqid((string) \random_int(0, PHP_INT_MAX), true); // phpcs:ignore
-
-        return $target;
+        return $this->getMockBuilder(TargetInterface::class)
+            ->setMockClassName('TargetInterface_'.\md5(\uniqid((string) \random_int(PHP_INT_MIN, PHP_INT_MAX), true)))
+            ->getMock();
     }
 }

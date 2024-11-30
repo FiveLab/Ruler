@@ -23,26 +23,18 @@ class Targets implements TargetInterface
     /**
      * @var array<TargetInterface>
      */
-    private array $targets;
+    private readonly array $targets;
 
     /**
-     * @var array<ExecutorInterface>
+     * @var array<ExecutorInterface<object>>
      */
     private array $executors = [];
 
-    /**
-     * Constructor.
-     *
-     * @param TargetInterface ...$targets
-     */
     public function __construct(TargetInterface ...$targets)
     {
         $this->targets = $targets;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports(object $target): bool
     {
         foreach ($this->targets as $targetFactory) {
@@ -56,6 +48,8 @@ class Targets implements TargetInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return ExecutorInterface<object>
      */
     public function createExecutor(object $target): ExecutorInterface
     {

@@ -15,22 +15,12 @@ namespace FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Embeddable()
- */
+#[ORM\Embeddable]
 class Money
 {
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="currency", type="string")
-     */
+    #[ORM\Column(name: 'currency', type: 'string')]
     private string $currency;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="amount", type="string")
-     */
+    #[ORM\Column(name: 'amount', type: 'string')]
     private string $amount;
 }

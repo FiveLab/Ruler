@@ -14,13 +14,12 @@ declare(strict_types = 1);
 namespace FiveLab\Component\Ruler\Tests\Unit\Operator;
 
 use FiveLab\Component\Ruler\Operator\Operators;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class OperatorsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessGetOperator(): void
     {
         $operators = new Operators([]);
@@ -34,9 +33,7 @@ class OperatorsTest extends TestCase
         self::assertIsCallable($handler);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldPassAllDataToOperator(): void
     {
         $operators = new Operators([]);
@@ -53,9 +50,7 @@ class OperatorsTest extends TestCase
         self::assertEquals('handled', $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowErrorIfOperatorMissed(): void
     {
         $operators = new Operators([]);
@@ -72,9 +67,7 @@ class OperatorsTest extends TestCase
         $operators->get('and');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessOverridesHandler(): void
     {
         $operator = new Operators([
@@ -92,9 +85,7 @@ class OperatorsTest extends TestCase
         self::assertEquals('1 like 2', $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessOverridesHandledWithReturnNull(): void
     {
         $operator = new Operators([
@@ -112,9 +103,7 @@ class OperatorsTest extends TestCase
         self::assertEquals('1 and 2', $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowErrorIfReturnNull(): void
     {
         $operator = new Operators([

@@ -11,22 +11,18 @@
 
 declare(strict_types = 1);
 
-namespace FiveLab\Component\Ruler\Tests\Parser;
+namespace FiveLab\Component\Ruler\Tests\Unit\Parser;
 
 use FiveLab\Component\Ruler\Parser\Lexer;
 use FiveLab\Component\Ruler\Parser\SyntaxException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class LexerTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @param string     $expression
-     * @param \Throwable $expectedException
-     *
-     * @dataProvider provideFailExpressions
-     */
+    #[Test]
+    #[DataProvider('provideFailExpressions')]
     public function shouldFailTokenize(string $expression, \Throwable $expectedException): void
     {
         $this->expectException(\get_class($expectedException));
@@ -35,12 +31,7 @@ class LexerTest extends TestCase
         (new Lexer())->tokenize($expression);
     }
 
-    /**
-     * Provide fail expressions
-     *
-     * @return array
-     */
-    public function provideFailExpressions(): array
+    public static function provideFailExpressions(): array
     {
         return [
             [

@@ -20,37 +20,14 @@ use FiveLab\Component\Ruler\Operator\Operators;
 use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
 /**
- * The executor for elastic search based on "ruflin/elastica" library.
+ * @implements ExecutorInterface<Query|RawSearchQuery>
  */
-class ElasticaExecutor implements ExecutorInterface
+readonly class ElasticaExecutor implements ExecutorInterface
 {
-    /**
-     * @var ElasticaVisitor
-     */
-    private ElasticaVisitor $visitor;
-
-    /**
-     * @var Operators
-     */
-    private Operators $operators;
-
-    /**
-     * Constructor.
-     *
-     * @param ElasticaVisitor $visitor
-     * @param Operators       $operators
-     */
-    public function __construct(ElasticaVisitor $visitor, Operators $operators)
+    public function __construct(private ElasticaVisitor $visitor, private Operators $operators)
     {
-        $this->visitor = $visitor;
-        $this->operators = $operators;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param Query|RawSearchQuery $target
-     */
     public function execute(object $target, Node $node, array $parameters): void
     {
         /** @var array<string, mixed> $query */

@@ -18,79 +18,25 @@ namespace FiveLab\Component\Ruler\Specification;
  */
 class CompositeSpecification implements SpecificationInterface
 {
-    /**
-     * @var string
-     */
-    private string $operator;
-
-    /**
-     * @var array<SpecificationInterface>
-     */
-    private array $specifications;
-
-    /**
-     * @var string|null
-     */
+    public readonly string $operator;
+    public readonly array $specifications;
     private ?string $processedRule = null;
-
-    /**
-     * @var array<string, mixed>|null
-     */
     private ?array $processedParameters = null;
 
-    /**
-     * Constructor.
-     *
-     * @param string                 $operator
-     * @param SpecificationInterface ...$specifications
-     */
     public function __construct(string $operator, SpecificationInterface ...$specifications)
     {
         $this->operator = \trim($operator);
         $this->specifications = $specifications;
     }
 
-    /**
-     * Add specification to composition
-     *
-     * @param SpecificationInterface $specification
-     *
-     * @return self
-     */
     public function add(SpecificationInterface $specification): self
     {
-        $cloned = clone $this;
-        $cloned->specifications[] = $specification;
+        $specifications = $this->specifications;
+        $specifications[] = $specification;
 
-        $cloned->processedRule = null;
-        $cloned->processedParameters = null;
-
-        return $cloned;
+        return new self($this->operator, ...$specifications);
     }
 
-    /**
-     * Get all specifications
-     *
-     * @return SpecificationInterface[]
-     */
-    public function getSpecifications(): array
-    {
-        return $this->specifications;
-    }
-
-    /**
-     * Get operator
-     *
-     * @return string
-     */
-    public function getOperator(): string
-    {
-        return $this->operator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getRule(): string
     {
         $this->processForControlDuplicates();
@@ -98,9 +44,6 @@ class CompositeSpecification implements SpecificationInterface
         return (string) $this->processedRule;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getParameters(): array
     {
         $this->processForControlDuplicates();
@@ -108,9 +51,6 @@ class CompositeSpecification implements SpecificationInterface
         return (array) $this->processedParameters;
     }
 
-    /**
-     * Process rule and parameters for control duplicates.
-     */
     private function processForControlDuplicates(): void
     {
         if (null !== $this->processedRule) {

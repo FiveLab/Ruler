@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Next release
+------------
+
+* Support only PHP `~8.2`.
+* Refactor classes for use readonly properties.
+* Fix `setParameters` for doctrine new versions.
+
 v1.2.0
 ------
 

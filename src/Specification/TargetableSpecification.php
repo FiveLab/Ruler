@@ -16,32 +16,19 @@ namespace FiveLab\Component\Ruler\Specification;
 /**
  * Targetable specification for possible use one top-level specification for many targets.
  */
-class TargetableSpecification implements SpecificationInterface
+readonly class TargetableSpecification implements SpecificationInterface
 {
     public const TARGET_DEFAULT = 'Default';
-
-    /**
-     * @var array<string, SpecificationInterface>
-     */
-    private array $targets;
 
     /**
      * Constructor.
      *
      * @param array<string, SpecificationInterface> $targets
      */
-    public function __construct(array $targets)
+    public function __construct(private array $targets)
     {
-        $this->targets = $targets;
     }
 
-    /**
-     * Get specification for target
-     *
-     * @param string $target
-     *
-     * @return SpecificationInterface
-     */
     public function getForTarget(string $target): SpecificationInterface
     {
         if (!\array_key_exists($target, $this->targets)) {
@@ -55,9 +42,6 @@ class TargetableSpecification implements SpecificationInterface
         return $this->targets[$target];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRule(): string
     {
         $specification = SpecificationFilter::filterByTarget($this->getForTarget(self::TARGET_DEFAULT), self::TARGET_DEFAULT, true);
@@ -65,9 +49,6 @@ class TargetableSpecification implements SpecificationInterface
         return $specification->getRule();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getParameters(): array
     {
         $specification = SpecificationFilter::filterByTarget($this->getForTarget(self::TARGET_DEFAULT), self::TARGET_DEFAULT, true);

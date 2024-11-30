@@ -15,13 +15,12 @@ namespace FiveLab\Component\Ruler\Tests\Unit\Specification;
 
 use FiveLab\Component\Ruler\Specification\AndX;
 use FiveLab\Component\Ruler\Specification\SimpleSpecification;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class AndXTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreate(): void
     {
         $spec = new AndX(

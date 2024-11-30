@@ -16,13 +16,12 @@ namespace FiveLab\Component\Ruler\Tests\Unit\Parser;
 use FiveLab\Component\Ruler\Parser\SyntaxException;
 use FiveLab\Component\Ruler\Parser\Token;
 use FiveLab\Component\Ruler\Parser\TokenStream;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class TokenStreamTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowOnNextIfMissed(): void
     {
         $stream = new TokenStream('', new Token(Token::TYPE_EOF, 0, ''));

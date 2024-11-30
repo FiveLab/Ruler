@@ -16,31 +16,10 @@ namespace FiveLab\Component\Ruler\Node;
 /**
  * Represent name node or property name
  */
-class NameNode extends Node
+readonly class NameNode extends Node
 {
-    /**
-     * @var string
-     */
-    private string $name;
-
-    /**
-     * Constructor.
-     *
-     * @param string $name
-     */
-    public function __construct(string $name)
+    public function __construct(public string $name)
     {
-        $this->name = $name;
-    }
-
-    /**
-     * Get the name
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
     }
 
     /**
@@ -56,7 +35,7 @@ class NameNode extends Node
         $path = '';
 
         while ($part = \array_shift($parts)) {
-            if ('\\' === \substr($part, -1)) {
+            if (\str_ends_with($part, '\\')) {
                 // Escape dot.
                 $part = \substr($part, 0, -1);
                 $path .= $path ? '.'.$part : $part;

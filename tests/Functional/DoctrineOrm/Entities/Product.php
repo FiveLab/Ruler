@@ -16,67 +16,33 @@ namespace FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class Product
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id()
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(type="integer", name="id")
-     */
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     private int $id;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(type="datetime", name="created_at")
-     */
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
     private \DateTimeInterface $createdAt;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean", name="published")
-     */
+    #[ORM\Column(name: 'published', type: 'boolean')]
     private bool $published;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", name="tag")
-     */
+    #[ORM\Column(name: 'tag', type: 'string')]
     private string $tag;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(type="float", name="price")
-     */
+    #[ORM\Column(name: 'price', type: 'float')]
     private float $price;
 
-    /**
-     * @var Category
-     *
-     * @ORM\ManyToOne(targetEntity="\FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Category")
-     * @ORM\JoinColumn(name="category", referencedColumnName="id")
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\JoinColumn(name: 'category', referencedColumnName: 'id')]
     private Category $category;
 
-    /**
-     * @var Collection
-     *
-     * @ORM\OneToMany(targetEntity="\FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Variant", mappedBy="product")
-     */
+    #[ORM\OneToMany(targetEntity: Variant::class, mappedBy: 'product')]
     private Collection $variants;
 
-    /**
-     * @var Money
-     *
-     * @ORM\Embedded(class="\FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Money", columnPrefix="")
-     */
+    #[ORM\Embedded(class: Money::class, columnPrefix: '')]
     private Money $amount;
 }

@@ -14,13 +14,12 @@ declare(strict_types = 1);
 namespace FiveLab\Component\Ruler\Tests\Unit\Executor;
 
 use FiveLab\Component\Ruler\Executor\ExecutionContext;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ExecutionContextTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreate(): void
     {
         $context = new ExecutionContext([
@@ -30,9 +29,7 @@ class ExecutionContextTest extends TestCase
         self::assertEquals('bar', $context->get('foo'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldFailGetIfMissedKey(): void
     {
         $context = new ExecutionContext([
@@ -46,9 +43,7 @@ class ExecutionContextTest extends TestCase
         $context->get('some');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessSet(): void
     {
         $context = new ExecutionContext([
@@ -60,9 +55,7 @@ class ExecutionContextTest extends TestCase
         self::assertEquals('bar', $context->get('foo'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessAdd(): void
     {
         $context = new ExecutionContext([
@@ -74,9 +67,7 @@ class ExecutionContextTest extends TestCase
         self::assertEquals(['bar'], $context->get('foo'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessAddWithInnerKey(): void
     {
         $context = new ExecutionContext([
@@ -93,9 +84,7 @@ class ExecutionContextTest extends TestCase
         ], $context->get('some'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldFailAddIfMissedKey(): void
     {
         $context = new ExecutionContext([]);
@@ -106,9 +95,7 @@ class ExecutionContextTest extends TestCase
         $context->add('bar', null, 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldFailAddIfKeyIsNotAnArray(): void
     {
         $context = new ExecutionContext([

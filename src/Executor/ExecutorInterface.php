@@ -17,13 +17,15 @@ use FiveLab\Component\Ruler\Node\Node;
 
 /**
  * All executors should implement this interface.
+ *
+ * @template T of object
  */
 interface ExecutorInterface
 {
     /**
      * Execute node with parameters for target
      *
-     * @param object               $target
+     * @param T                    $target
      * @param Node                 $node
      * @param array<string, mixed> $parameters
      *

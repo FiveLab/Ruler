@@ -11,31 +11,24 @@
 
 declare(strict_types = 1);
 
-namespace FiveLab\Component\Ruler\Unit\Target;
+namespace FiveLab\Component\Ruler\Tests\Unit\Target;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use FiveLab\Component\Ruler\Target\DoctrineOrmTarget;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class DoctrineOrmTargetTest extends TestCase
 {
-    /**
-     * @var DoctrineOrmTarget
-     */
     private DoctrineOrmTarget $target;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $this->target = new DoctrineOrmTarget();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotSupports(): void
     {
         $supports = $this->target->supports(new \stdClass());
@@ -43,9 +36,7 @@ class DoctrineOrmTargetTest extends TestCase
         self::assertFalse($supports);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessSupports(): void
     {
         $qb = $this->createMock(QueryBuilder::class);
@@ -55,9 +46,7 @@ class DoctrineOrmTargetTest extends TestCase
         self::assertTrue($supports);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessGetIdentifier(): void
     {
         $em = $this->createMock(EntityManagerInterface::class);

@@ -22,24 +22,16 @@ use FiveLab\Component\Ruler\Operator\OperatorsConfigurator;
 
 /**
  * The target for Doctrine ORM.
+ *
+ * @implements IdentifiableTargetInterface<QueryBuilder>
  */
-class DoctrineOrmTarget implements IdentifiableTargetInterface
+readonly class DoctrineOrmTarget implements IdentifiableTargetInterface
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param QueryBuilder $target
-     */
     public function supports(object $target): bool
     {
         return $target instanceof QueryBuilder;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param QueryBuilder $target
-     */
     public function createExecutor(object $target): ExecutorInterface
     {
         $operators = new Operators([]);
@@ -51,11 +43,6 @@ class DoctrineOrmTarget implements IdentifiableTargetInterface
         return new DoctrineOrmExecutor($visitor, $operators);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param QueryBuilder $target
-     */
     public function getIdentifier(object $target): string
     {
         return \spl_object_hash($target->getEntityManager());

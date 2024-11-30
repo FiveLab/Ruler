@@ -15,40 +15,22 @@ namespace FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class Variant
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id()
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(name="id", type="int")
-     */
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     private int $id;
 
-    /**
-     * @var Product
-     *
-     * @ORM\ManyToOne(targetEntity="\FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Product", inversedBy="variants")
-     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'variants')]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', nullable: false)]
     private Product $product;
 
-    /**
-     * @var Category
-     *
-     * @ORM\ManyToOne(targetEntity="\FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Category")
-     * @ORM\JoinColumn(name="category_id", referencedColumnName="id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     private Category $category;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="keyword", type="string")
-     */
+    #[ORM\Column(name: 'keyword', type: 'string')]
     private string $key;
 }

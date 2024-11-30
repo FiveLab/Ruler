@@ -13,22 +13,13 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Specification;
 
-/**
- * Empty specification.
- */
-final class EmptySpecification implements SpecificationInterface
+final readonly class EmptySpecification implements SpecificationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getRule(): string
     {
         return '';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getParameters(): array
     {
         return [];

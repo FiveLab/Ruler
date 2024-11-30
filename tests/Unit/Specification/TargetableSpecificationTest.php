@@ -15,13 +15,12 @@ namespace FiveLab\Component\Ruler\Tests\Unit\Specification;
 
 use FiveLab\Component\Ruler\Specification\SimpleSpecification;
 use FiveLab\Component\Ruler\Specification\TargetableSpecification;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class TargetableSpecificationTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreate(): void
     {
         $spec = new TargetableSpecification([
@@ -33,9 +32,7 @@ class TargetableSpecificationTest extends TestCase
         self::assertEquals(new SimpleSpecification('foo-bar', [2]), $spec->getForTarget('FooBar'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessGetRuleAndParameters(): void
     {
         $spec = new TargetableSpecification([
@@ -47,9 +44,7 @@ class TargetableSpecificationTest extends TestCase
         self::assertEquals([1], $spec->getParameters());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowErrorIfTargetNotFound(): void
     {
         $spec = new TargetableSpecification([

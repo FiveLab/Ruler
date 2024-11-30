@@ -16,16 +16,8 @@ namespace FiveLab\Component\Ruler\Specification;
 /**
  * A helper for filter specifications.
  */
-class SpecificationFilter
+readonly final class SpecificationFilter
 {
-    /**
-     * Filter specification by filter
-     *
-     * @param SpecificationInterface $specification
-     * @param \Closure               $filter
-     *
-     * @return array<SpecificationInterface>
-     */
     public static function filter(SpecificationInterface $specification, \Closure $filter): array
     {
         if ($specification instanceof CompositeSpecification) {
@@ -35,25 +27,16 @@ class SpecificationFilter
         return [];
     }
 
-    /**
-     * Filter specification by target
-     *
-     * @param SpecificationInterface $specification
-     * @param string                 $target
-     * @param bool                   $useSimpleAsFallback
-     *
-     * @return SpecificationInterface
-     */
     public static function filterByTarget(SpecificationInterface $specification, string $target, bool $useSimpleAsFallback = true): SpecificationInterface
     {
         if ($specification instanceof CompositeSpecification) {
             $filteredSpecifications = [];
 
-            foreach ($specification->getSpecifications() as $innerSpecification) {
+            foreach ($specification->specifications as $innerSpecification) {
                 $filteredSpecifications[] = self::filterByTarget($innerSpecification, $target, $useSimpleAsFallback);
             }
 
-            return new CompositeSpecification($specification->getOperator(), ...$filteredSpecifications);
+            return new CompositeSpecification($specification->operator, ...$filteredSpecifications);
         }
 
         if ($specification instanceof TargetableSpecification) {
@@ -77,14 +60,6 @@ class SpecificationFilter
         ));
     }
 
-    /**
-     * Filter specification by instanceof
-     *
-     * @param SpecificationInterface $specification
-     * @param string                 $class
-     *
-     * @return array<SpecificationInterface>
-     */
     public static function filterByInstanceof(SpecificationInterface $specification, string $class): array
     {
         return self::filter($specification, static function (SpecificationInterface $specification) use ($class) {
@@ -92,19 +67,11 @@ class SpecificationFilter
         });
     }
 
-    /**
-     * Self process of filter specifications
-     *
-     * @param CompositeSpecification $specification
-     * @param \Closure               $filter
-     *
-     * @return array<SpecificationInterface>
-     */
     private static function doFilter(CompositeSpecification $specification, \Closure $filter): array
     {
         $filteredSpecifications = [[]];
 
-        foreach ($specification->getSpecifications() as $innerSpecification) {
+        foreach ($specification->specifications as $innerSpecification) {
             if ($innerSpecification instanceof CompositeSpecification) {
                 $filteredSpecifications[] = self::doFilter($innerSpecification, $filter);
             } elseif ($filter($innerSpecification)) {

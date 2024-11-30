@@ -18,24 +18,7 @@ namespace FiveLab\Component\Ruler\Parser;
  */
 class SyntaxException extends \Exception
 {
-    /**
-     * @var int
-     */
-    private int $cursor;
-
-    /**
-     * @var string
-     */
-    private string $expression;
-
-    /**
-     * Constructor.
-     *
-     * @param string $message
-     * @param int    $cursor
-     * @param string $expression
-     */
-    public function __construct(string $message, int $cursor, string $expression)
+    public function __construct(string $message, public readonly int $cursor, public readonly string $expression)
     {
         $message = \sprintf('%s around position %d', \rtrim($message, '.'), $cursor);
 
@@ -46,28 +29,5 @@ class SyntaxException extends \Exception
         $message .= '.';
 
         parent::__construct($message);
-
-        $this->cursor = $cursor;
-        $this->expression = $expression;
-    }
-
-    /**
-     * Get cursor
-     *
-     * @return int
-     */
-    public function getCursor(): int
-    {
-        return $this->cursor;
-    }
-
-    /**
-     * Get expression
-     *
-     * @return string
-     */
-    public function getExpression(): string
-    {
-        return $this->expression;
     }
 }

@@ -18,30 +18,22 @@ use FiveLab\Component\Ruler\Executor\Elastica\ElasticaVisitor;
 use FiveLab\Component\Ruler\Node\Node;
 use FiveLab\Component\Ruler\Operator\Operators;
 use FiveLab\Component\Ruler\Query\RawSearchQuery;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class ElasticaVisitorTest extends TestCase
 {
-    /**
-     * @var ElasticaVisitor
-     */
     private ElasticaVisitor $visitor;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $this->visitor = new ElasticaVisitor();
     }
 
-    /**
-     * @test
-     *
-     * @param Query|RawSearchQuery $query
-     *
-     * @dataProvider provideQuery
-     */
+    #[Test]
+    #[TestWith([new Query()])]
+    #[TestWith([new RawSearchQuery()])]
     public function shouldThrowErrorForUnknownNode(object $query): void
     {
         $node = new Node();
@@ -50,18 +42,5 @@ class ElasticaVisitorTest extends TestCase
         $this->expectExceptionMessage('Unknown node "FiveLab\Component\Ruler\Node\Node"');
 
         $this->visitor->visit($query, $node, [], new Operators([]));
-    }
-
-    /**
-     * Provide query
-     *
-     * @return array
-     */
-    public function provideQuery(): array
-    {
-        return [
-            [new Query()],
-            [new RawSearchQuery()],
-        ];
     }
 }

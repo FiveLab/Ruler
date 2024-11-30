@@ -13,63 +13,54 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm;
 
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use FiveLab\Component\Ruler\Ruler;
 use FiveLab\Component\Ruler\Target\DoctrineOrmTarget;
 use FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Product;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class DoctrineOrmRulerTest extends TestCase
 {
-    /**
-     * @var EntityManagerInterface
-     */
     private EntityManagerInterface $entityManager;
-
-    /**
-     * @var Ruler
-     */
     private Ruler $ruler;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $configuration = new Configuration();
-        $configuration->setMetadataDriverImpl(ORMSetup::createDefaultAnnotationDriver([__DIR__.'/Entities']));
+        $configuration->setMetadataDriverImpl(new AttributeDriver([__DIR__.'/Entities']));
         $configuration->setProxyDir(\sys_get_temp_dir().'/Proxy');
         $configuration->setProxyNamespace('Proxy');
         $configuration->setAutoGenerateProxyClasses(false);
 
-        $connection = new Connection([
-            'platform' => new MySQLPlatform(),
-        ], new Driver());
+        $emConstructorRef = new \ReflectionMethod(EntityManager::class, '__construct');
 
-        $this->entityManager = EntityManager::create($connection, $configuration);
+        if (\method_exists(EntityManager::class, 'create')) {
+            $connection = new Connection([
+                'platform' => new MySQLPlatform(),
+            ], new Driver());
+
+            $this->entityManager = EntityManager::create($connection, $configuration);
+        } else {
+            $this->entityManager = new EntityManager($this->createMock(Connection::class), $configuration);
+        }
 
         $this->ruler = new Ruler(new DoctrineOrmTarget());
     }
 
-    /**
-     * @test
-     *
-     * @param string $rule
-     * @param array  $params
-     * @param string $expectedWhereSql
-     * @param array  $joins
-     *
-     * @dataProvider provideDataForApply
-     */
+    #[Test]
+    #[DataProvider('provideDataForApply')]
     public function shouldSuccessApply(string $rule, array $params, string $expectedWhereSql, array $joins = []): void
     {
         $qb = (new QueryBuilder($this->entityManager))
@@ -95,9 +86,7 @@ class DoctrineOrmRulerTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowErrorIfRelationAndEmbeddedNotFound(): void
     {
         $qb = (new QueryBuilder($this->entityManager))
@@ -110,12 +99,7 @@ class DoctrineOrmRulerTest extends TestCase
         $this->ruler->apply($qb, 'foo.bar', []);
     }
 
-    /**
-     * Provide data for success apply
-     *
-     * @return array[]
-     */
-    public function provideDataForApply(): array
+    public static function provideDataForApply(): array
     {
         return [
             'eq' => [

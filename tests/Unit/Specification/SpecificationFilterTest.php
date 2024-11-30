@@ -21,13 +21,12 @@ use FiveLab\Component\Ruler\Specification\SimpleSpecification;
 use FiveLab\Component\Ruler\Specification\SpecificationFilter;
 use FiveLab\Component\Ruler\Specification\SpecificationInterface;
 use FiveLab\Component\Ruler\Specification\TargetableSpecification;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class SpecificationFilterTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessFilter(): void
     {
         $composite = new CompositeSpecification(
@@ -53,9 +52,7 @@ class SpecificationFilterTest extends TestCase
         ], $filtered);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessFilterForNonComposite(): void
     {
         $spec = new SimpleSpecification('1', []);
@@ -67,9 +64,7 @@ class SpecificationFilterTest extends TestCase
         self::assertEquals([], $filtered);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessFilterTargetableSpecification(): void
     {
         $specification = new AndX(
@@ -115,9 +110,7 @@ class SpecificationFilterTest extends TestCase
         ], $esSpec->getParameters());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessFilterByTargetIfMissedForDefault(): void
     {
         $specification = new AndX(
@@ -138,9 +131,7 @@ class SpecificationFilterTest extends TestCase
         ], $defaultSpec->getParameters());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldFailFilterByTargetIfMissed(): void
     {
         $specification = new AndX(
@@ -157,9 +148,7 @@ class SpecificationFilterTest extends TestCase
         SpecificationFilter::filterByTarget($specification, 'ElasticSearch', false);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessFilterByInstanceOf(): void
     {
         $spec = new CompositeSpecification(

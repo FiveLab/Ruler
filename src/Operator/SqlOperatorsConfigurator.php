@@ -13,14 +13,8 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Operator;
 
-/**
- * The configurator for configure SQL like operators.
- */
 class SqlOperatorsConfigurator implements OperatorsConfiguratorInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function configure(Operators $operators): void
     {
         $operators->add('and', static function ($a, $b) {

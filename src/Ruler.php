@@ -18,43 +18,17 @@ use FiveLab\Component\Ruler\Parser\Parser;
 use FiveLab\Component\Ruler\Specification\SpecificationInterface;
 use FiveLab\Component\Ruler\Target\TargetInterface;
 
-/**
- * Base ruler.
- */
-class Ruler implements RulerInterface
+readonly class Ruler implements RulerInterface
 {
-    /**
-     * @var TargetInterface
-     */
-    private TargetInterface $target;
-
-    /**
-     * @var Lexer
-     */
     private Lexer $lexer;
-
-    /**
-     * @var Parser
-     */
     private Parser $parser;
 
-    /**
-     * Constructor.
-     *
-     * @param TargetInterface $target
-     * @param Lexer|null      $lexer
-     * @param Parser|null     $parser
-     */
-    public function __construct(TargetInterface $target, Lexer $lexer = null, Parser $parser = null)
+    public function __construct(private TargetInterface $target, Lexer $lexer = null, Parser $parser = null)
     {
-        $this->target = $target;
         $this->lexer = $lexer ?: new Lexer();
         $this->parser = $parser ?: new Parser();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function apply(object $target, string $rule, array $parameters): void
     {
         $tokens = $this->lexer->tokenize($rule);
@@ -65,9 +39,6 @@ class Ruler implements RulerInterface
         $executor->execute($target, $node, $parameters);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function applySpec(object $target, SpecificationInterface $specification): void
     {
         if ($specification->getRule()) {

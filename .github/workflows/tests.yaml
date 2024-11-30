@@ -18,17 +18,17 @@ jobs:
                 with:
                     coverage: "none"
                     ini-values: "memory_limit=-1"
-                    php-version: "7.4"
+                    php-version: "8.2"
                     tools: "composer"
 
             -   name: Install vendors
                 run: composer install --prefer-dist
 
             -   name: Check style on sources
-                run: bin/phpcs --standard=vendor/escapestudios/symfony2-coding-standard/Symfony/ src/
+                run: bin/phpcs --standard=src/phpcs.xml src/
 
             -   name: Check style on tests
-                run: bin/phpcs --standard=tests/phpcs-ruleset.xml tests/
+                run: bin/phpcs --standard=tests/phpcs.xml tests/
 
     php-stan:
         name: Run PHP-Stan
@@ -43,7 +43,7 @@ jobs:
                 with:
                     coverage: "none"
                     ini-values: "memory_limit=-1"
-                    php-version: "7.4"
+                    php-version: "8.2"
                     tools: "composer"
 
             -   name: Install vendors
@@ -58,7 +58,7 @@ jobs:
 
         strategy:
             matrix:
-                php: [ '7.4', '8.0', '8.1' ]
+                php: [ '8.2', '8.3' ]
 
         steps:
             -   name: Checkout
@@ -77,3 +77,10 @@ jobs:
 
             -   name: Run tests
                 run: bin/phpunit
+
+            -   name: Install lowest vendors
+                run: composer update --prefer-lowest
+
+            -   name: Run tests on lowest vendors
+                run: bin/phpunit
+

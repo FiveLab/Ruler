@@ -13,14 +13,8 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Operator;
 
-/**
- * The configurator for configure ElasticSearch like operators.
- */
 class ElasticSearchOperatorsConfigurator implements OperatorsConfiguratorInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function configure(Operators $operators): void
     {
         $operators->add('=', self::makeTermCallableForOperator('must', 'term'));
@@ -61,13 +55,6 @@ class ElasticSearchOperatorsConfigurator implements OperatorsConfiguratorInterfa
         });
     }
 
-    /**
-     * Make callable for range operators
-     *
-     * @param string $esOperator
-     *
-     * @return \Closure
-     */
     private static function makeRangeCallableForOperator(string $esOperator): \Closure
     {
         return static function ($a, $b) use ($esOperator) {
@@ -81,15 +68,6 @@ class ElasticSearchOperatorsConfigurator implements OperatorsConfiguratorInterfa
         };
     }
 
-    /**
-     * Make callable for term operators
-     *
-     * @param string $esOperator
-     * @param string $filterOperator
-     * @param bool   $useValueKey
-     *
-     * @return \Closure
-     */
     private static function makeTermCallableForOperator(string $esOperator, string $filterOperator, bool $useValueKey = true): \Closure
     {
         return static function ($a, $b) use ($esOperator, $filterOperator, $useValueKey) {

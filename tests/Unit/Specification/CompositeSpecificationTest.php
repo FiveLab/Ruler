@@ -15,13 +15,12 @@ namespace FiveLab\Component\Ruler\Tests\Unit\Specification;
 
 use FiveLab\Component\Ruler\Specification\CompositeSpecification;
 use FiveLab\Component\Ruler\Specification\SimpleSpecification;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class CompositeSpecificationTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreateWithOneSpec(): void
     {
         $spec = new CompositeSpecification('AND', new SimpleSpecification('1 = :param', ['param' => true]));
@@ -30,9 +29,7 @@ class CompositeSpecificationTest extends TestCase
         self::assertEquals(['param' => true], $spec->getParameters());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreateWithMoreSpec(): void
     {
         $now = new \DateTime();
@@ -52,9 +49,7 @@ class CompositeSpecificationTest extends TestCase
         ], $spec->getParameters());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessFixDuplicateParameterNames(): void
     {
         $spec = new CompositeSpecification(
@@ -72,9 +67,7 @@ class CompositeSpecificationTest extends TestCase
         ], $spec->getParameters());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessAddSpecifications(): void
     {
         $composite = new CompositeSpecification('AND');
@@ -84,10 +77,10 @@ class CompositeSpecificationTest extends TestCase
 
         $composite = $composite->add($spec1);
 
-        self::assertEquals([$spec1], $composite->getSpecifications());
+        self::assertEquals([$spec1], $composite->specifications);
 
         $composite = $composite->add($spec2);
 
-        self::assertEquals([$spec1, $spec2], $composite->getSpecifications());
+        self::assertEquals([$spec1, $spec2], $composite->specifications);
     }
 }

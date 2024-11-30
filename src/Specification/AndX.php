@@ -18,11 +18,6 @@ namespace FiveLab\Component\Ruler\Specification;
  */
 class AndX extends CompositeSpecification
 {
-    /**
-     * Constructor.
-     *
-     * @param SpecificationInterface ...$specifications
-     */
     public function __construct(SpecificationInterface ...$specifications)
     {
         parent::__construct('AND', ...$specifications);

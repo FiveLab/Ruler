@@ -16,38 +16,12 @@ namespace FiveLab\Component\Ruler\Node;
 /**
  * Represent parameter node
  */
-class ParameterNode extends Node
+readonly class ParameterNode extends Node implements \Stringable
 {
-    /**
-     * @var string
-     */
-    private string $name;
-
-    /**
-     * Constructor.
-     *
-     * @param string $name
-     */
-    public function __construct(string $name)
+    public function __construct(public string $name)
     {
-        $this->name = $name;
     }
 
-    /**
-     * Get the name of parameter
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * Implement __toString
-     *
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->name;

@@ -11,43 +11,27 @@
 
 declare(strict_types = 1);
 
-namespace FiveLab\Component\Ruler\Tests\Node;
+namespace FiveLab\Component\Ruler\Tests\Unit\Node;
 
 use FiveLab\Component\Ruler\Node\ConstantNode;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class ConstantNodeTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @param        $value
-     * @param string $expectedString
-     *
-     * @dataProvider provideData
-     */
-    public function shouldSuccessCreate($value, string $expectedString): void
+    #[Test]
+    #[TestWith([true, 'true'])]
+    #[TestWith([false, 'false'])]
+    #[TestWith([null, 'null'])]
+    #[TestWith([11, '11'])]
+    #[TestWith([12.55, '12.55'])]
+    #[TestWith(['bar', 'bar'])]
+    public function shouldSuccessCreate(mixed $value, string $expectedString): void
     {
         $node = new ConstantNode($value);
 
-        self::assertEquals($value, $node->getValue());
+        self::assertEquals($value, $node->value);
         self::assertEquals($expectedString, (string) $node);
-    }
-
-    /**
-     * Provide data for testing
-     *
-     * @return array
-     */
-    public function provideData(): array
-    {
-        return [
-            [true, 'true'],
-            [false, 'false'],
-            [null, 'null'],
-            [11, '11'],
-            [12.55, '12.55'],
-            ['bar', 'bar'],
-        ];
     }
 }

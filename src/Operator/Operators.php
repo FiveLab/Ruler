@@ -13,9 +13,6 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Operator;
 
-/**
- * Operators collection.
- */
 class Operators
 {
     /**
@@ -35,12 +32,6 @@ class Operators
         }
     }
 
-    /**
-     * Add operator
-     *
-     * @param string   $operator
-     * @param \Closure $handler
-     */
     public function add(string $operator, \Closure $handler): void
     {
         $operators = $this;
@@ -60,13 +51,6 @@ class Operators
         \array_unshift($this->operators[$operator], $innerHandler);
     }
 
-    /**
-     * Get operator
-     *
-     * @param string $operator
-     *
-     * @return \Closure
-     */
     public function get(string $operator): \Closure
     {
         if (!\array_key_exists($operator, $this->operators)) {

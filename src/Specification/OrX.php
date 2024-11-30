@@ -18,11 +18,6 @@ namespace FiveLab\Component\Ruler\Specification;
  */
 class OrX extends CompositeSpecification
 {
-    /**
-     * Constructor.
-     *
-     * @param SpecificationInterface ...$specification
-     */
     public function __construct(SpecificationInterface ...$specification)
     {
         parent::__construct('OR', ...$specification);

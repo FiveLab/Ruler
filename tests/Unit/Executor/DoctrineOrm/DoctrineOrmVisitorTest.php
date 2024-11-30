@@ -19,26 +19,19 @@ use FiveLab\Component\Ruler\Executor\DoctrineOrm\DoctrineOrmVisitor;
 use FiveLab\Component\Ruler\Executor\ExecutionContext;
 use FiveLab\Component\Ruler\Node\Node;
 use FiveLab\Component\Ruler\Operator\Operators;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class DoctrineOrmVisitorTest extends TestCase
 {
-    /**
-     * @var DoctrineOrmVisitor
-     */
     private DoctrineOrmVisitor $visitor;
 
-    /**
-     * @test
-     */
     protected function setUp(): void
     {
         $this->visitor = new DoctrineOrmVisitor($this->createMock(EntityManagerInterface::class));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldThrowErrorForUnknownNode(): void
     {
         $node = new Node();

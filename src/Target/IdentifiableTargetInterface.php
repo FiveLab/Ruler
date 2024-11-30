@@ -15,13 +15,17 @@ namespace FiveLab\Component\Ruler\Target;
 
 /**
  * Implement this interface if target can have specific identifier based on any parameter.
+ *
+ * @template T of object
+ *
+ * @extends TargetInterface<T>
  */
 interface IdentifiableTargetInterface extends TargetInterface
 {
     /**
      * Get identifier for target
      *
-     * @param object $target
+     * @param T $target
      *
      * @return string
      */

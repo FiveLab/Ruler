@@ -11,23 +11,22 @@
 
 declare(strict_types = 1);
 
-namespace FiveLab\Component\Ruler\Tests\Node;
+namespace FiveLab\Component\Ruler\Tests\Unit\Node;
 
 use FiveLab\Component\Ruler\Node\BinaryNode;
 use FiveLab\Component\Ruler\Node\ConstantNode;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class BinaryNodeTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreate(): void
     {
         $node = new BinaryNode('foo', new ConstantNode('bar'), new ConstantNode('foo'));
 
-        self::assertEquals('foo', $node->getOperator());
-        self::assertEquals(new ConstantNode('bar'), $node->getLeft());
-        self::assertEquals(new ConstantNode('foo'), $node->getRight());
+        self::assertEquals('foo', $node->operator);
+        self::assertEquals(new ConstantNode('bar'), $node->left);
+        self::assertEquals(new ConstantNode('foo'), $node->right);
     }
 }

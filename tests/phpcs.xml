@@ -3,8 +3,7 @@
     <!-- Include Symfony2 Standard -->
     <rule ref="../vendor/escapestudios/symfony2-coding-standard/Symfony/">
         <exclude name="Symfony.Commenting.ClassComment.Missing"/>
-<!--        <exclude name="Symfony.Commenting.Annotations"/>-->
+        <exclude name="Symfony.Commenting.FunctionComment.Missing"/>
         <exclude name="Symfony.Functions.ScopeOrder"/>
-<!--        <exclude name="Zend.NamingConventions.ValidVariableName.MemberVarContainsNumbers"/>-->
     </rule>
 </ruleset>

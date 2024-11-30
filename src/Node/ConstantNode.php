@@ -16,38 +16,12 @@ namespace FiveLab\Component\Ruler\Node;
 /**
  * Represent constant node (true/false/null/number/etc...)
  */
-class ConstantNode extends Node
+readonly class ConstantNode extends Node implements \Stringable
 {
-    /**
-     * @var mixed
-     */
-    private $value;
-
-    /**
-     * Constructor.
-     *
-     * @param null|int|float|string|bool $value
-     */
-    public function __construct($value)
+    public function __construct(public mixed $value)
     {
-        $this->value = $value;
     }
 
-    /**
-     * Get the value
-     *
-     * @return mixed
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    /**
-     * Implement __toString
-     *
-     * @return string
-     */
     public function __toString(): string
     {
         if (true === $this->value) {

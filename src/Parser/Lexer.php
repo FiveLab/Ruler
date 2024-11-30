@@ -13,20 +13,8 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Parser;
 
-/**
- * A lexer for tokenize expression string.
- */
-class Lexer
+readonly class Lexer
 {
-    /**
-     * Tokenize expression and get token stream
-     *
-     * @param string $expression
-     *
-     * @return TokenStream
-     *
-     * @throws SyntaxException
-     */
     public function tokenize(string $expression): TokenStream
     {
         $precedencePatterns = [];

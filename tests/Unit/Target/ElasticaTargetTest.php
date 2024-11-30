@@ -11,35 +11,27 @@
 
 declare(strict_types = 1);
 
-namespace FiveLab\Component\Ruler\Unit\Elastica;
+namespace FiveLab\Component\Ruler\Tests\Unit\Target;
 
 use Elastica\Query;
 use FiveLab\Component\Ruler\Query\RawSearchQuery;
 use FiveLab\Component\Ruler\Target\ElasticaTarget;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class ElasticaTargetTest extends TestCase
 {
-    /**
-     * @var ElasticaTarget
-     */
     private ElasticaTarget $target;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $this->target = new ElasticaTarget();
     }
 
-    /**
-     * @test
-     *
-     * @param Query|RawSearchQuery $query
-     *
-     * @dataProvider provideQuery
-     */
+    #[Test]
+    #[TestWith([new Query()])]
+    #[TestWith([new RawSearchQuery()])]
     public function shouldSuccessSupports(object $query): void
     {
         $supports = $this->target->supports($query);
@@ -47,26 +39,11 @@ class ElasticaTargetTest extends TestCase
         self::assertTrue($supports);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldNotSupports(): void
     {
         $supports = $this->target->supports(new \stdClass());
 
         self::assertFalse($supports);
-    }
-
-    /**
-     * Provide query
-     *
-     * @return array
-     */
-    public function provideQuery(): array
-    {
-        return [
-            [new Query()],
-            [new RawSearchQuery()],
-        ];
     }
 }

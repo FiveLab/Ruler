@@ -17,6 +17,8 @@ use FiveLab\Component\Ruler\Executor\ExecutorInterface;
 
 /**
  * All targets should implement this interface.
+ *
+ * @template T of object
  */
 interface TargetInterface
 {
@@ -32,7 +34,7 @@ interface TargetInterface
     /**
      * Create executor for target
      *
-     * @param object $target
+     * @param T $target
      *
      * @return ExecutorInterface
      */

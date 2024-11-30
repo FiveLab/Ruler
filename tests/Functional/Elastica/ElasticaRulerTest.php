@@ -17,31 +17,22 @@ use Elastica\Query;
 use FiveLab\Component\Ruler\Query\RawSearchQuery;
 use FiveLab\Component\Ruler\Ruler;
 use FiveLab\Component\Ruler\Target\ElasticaTarget;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class ElasticaRulerTest extends TestCase
 {
-    /**
-     * @var Ruler
-     */
     private Ruler $ruler;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $this->ruler = new Ruler(new ElasticaTarget());
     }
 
-    /**
-     * @test
-     *
-     * @param string               $file
-     * @param Query|RawSearchQuery $query
-     *
-     * @dataProvider provideDataForApply
-     */
+    #[Test]
+    #[DataProvider('provideDataForApply')]
     public function shouldSuccessApply(string $file, object $query): void
     {
         $data = \json_decode(\file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
@@ -55,13 +46,9 @@ class ElasticaRulerTest extends TestCase
         self::assertEquals($expectedQuery, $query->toArray()['query']);
     }
 
-    /**
-     * @test
-     *
-     * @param Query|RawSearchQuery $query
-     *
-     * @dataProvider provideQuery
-     */
+    #[Test]
+    #[TestWith([new Query()])]
+    #[TestWith([new RawSearchQuery()])]
     public function shouldFailForMoreNested(object $query): void
     {
         $this->expectException(\RuntimeException::class);
@@ -72,13 +59,9 @@ class ElasticaRulerTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     *
-     * @param Query|RawSearchQuery $query
-     *
-     * @dataProvider provideQuery
-     */
+    #[Test]
+    #[TestWith([new Query()])]
+    #[TestWith([new RawSearchQuery()])]
     public function shouldFailIfParameterMissed(object $query): void
     {
         $this->expectException(\LogicException::class);
@@ -90,12 +73,7 @@ class ElasticaRulerTest extends TestCase
         ]);
     }
 
-    /**
-     * Provide data for apply
-     *
-     * @return array
-     */
-    public function provideDataForApply(): array
+    public static function provideDataForApply(): array
     {
         $files = [
             __DIR__.'/Resources/eq.json',
@@ -121,18 +99,5 @@ class ElasticaRulerTest extends TestCase
                 return [$file, new RawSearchQuery()];
             }, $files)
         );
-    }
-
-    /**
-     * Provide query
-     *
-     * @return array
-     */
-    public function provideQuery(): array
-    {
-        return [
-            [new Query()],
-            [new RawSearchQuery()],
-        ];
     }
 }

@@ -21,23 +21,14 @@ use FiveLab\Component\Ruler\Parser\TokenStream;
 use FiveLab\Component\Ruler\Ruler;
 use FiveLab\Component\Ruler\Specification\SimpleSpecification;
 use FiveLab\Component\Ruler\Target\TargetInterface;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class RulerTest extends TestCase
 {
-    /**
-     * @var Ruler
-     */
     private Ruler $ruler;
-
-    /**
-     * @var object
-     */
     private object $targetObject;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $this->targetObject = (object) ['foo' => 'bar'];
@@ -72,17 +63,13 @@ class RulerTest extends TestCase
             ->with($this->targetObject, $node, ['p1' => 'v1', 'p2' => 'v2']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessApply(): void
     {
         $this->ruler->apply($this->targetObject, 'some rule foo bar', ['p1' => 'v1', 'p2' => 'v2']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessApplySpec(): void
     {
         $spec = new SimpleSpecification('some rule foo bar', ['p1' => 'v1', 'p2' => 'v2']);

@@ -16,6 +16,6 @@ namespace FiveLab\Component\Ruler\Node;
 /**
  * Represents the node in AST.
  */
-class Node
+readonly class Node
 {
 }

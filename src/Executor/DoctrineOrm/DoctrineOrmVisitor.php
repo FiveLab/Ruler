@@ -23,52 +23,27 @@ use FiveLab\Component\Ruler\Node\Node;
 use FiveLab\Component\Ruler\Node\ParameterNode;
 use FiveLab\Component\Ruler\Operator\Operators;
 
-/**
- * The visitor for visit nodes for Doctrine ORM.
- */
-class DoctrineOrmVisitor
+readonly class DoctrineOrmVisitor
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private EntityManagerInterface $entityManager;
-
-    /**
-     * Constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
-    /**
-     * Visit node for target
-     *
-     * @param QueryBuilder         $target
-     * @param Node                 $node
-     * @param array<string, mixed> $parameters
-     * @param Operators            $operators
-     * @param ExecutionContext     $context
-     *
-     * @return string Returns the SQL for WHERE clause
-     */
     public function visit(QueryBuilder $target, Node $node, array $parameters, Operators $operators, ExecutionContext $context): string
     {
         if ($node instanceof BinaryNode) {
-            $leftSide = $this->visit($target, $node->getLeft(), $parameters, $operators, $context);
-            $rightSide = $this->visit($target, $node->getRight(), $parameters, $operators, $context);
+            $leftSide = $this->visit($target, $node->left, $parameters, $operators, $context);
+            $rightSide = $this->visit($target, $node->right, $parameters, $operators, $context);
 
-            $operator = $operators->get($node->getOperator());
+            $operator = $operators->get($node->operator);
 
             return '('.$operator($leftSide, $rightSide).')';
         }
 
         if ($node instanceof NameNode) {
-            $name = $context->get('rootAlias').'.'.$node->getName();
+            $name = $context->get('rootAlias').'.'.$node->name;
 
-            if (false !== \strpos($node->getName(), '.')) {
+            if (\str_contains($node->name, '.')) {
                 // Maybe join detected.
                 $name = $this->detectJoins($target, $node, $context);
             }
@@ -77,7 +52,7 @@ class DoctrineOrmVisitor
         }
 
         if ($node instanceof ParameterNode) {
-            return ':'.$node->getName();
+            return ':'.$node->name;
         }
 
         if ($node instanceof ConstantNode) {
@@ -90,15 +65,6 @@ class DoctrineOrmVisitor
         ));
     }
 
-    /**
-     * Try to detect join
-     *
-     * @param QueryBuilder     $target
-     * @param NameNode         $node
-     * @param ExecutionContext $context
-     *
-     * @return string
-     */
     private function detectJoins(QueryBuilder $target, NameNode $node, ExecutionContext $context): string
     {
         $parts = $node->getSplittedParts();
@@ -123,7 +89,7 @@ class DoctrineOrmVisitor
                 throw new \LogicException(\sprintf(
                     'The part "%s" in path "%s" is no an association and not embeddable.',
                     $part,
-                    $node->getName()
+                    $node->name
                 ));
             }
 

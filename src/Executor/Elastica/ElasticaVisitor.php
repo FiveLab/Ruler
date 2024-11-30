@@ -22,28 +22,15 @@ use FiveLab\Component\Ruler\Node\ParameterNode;
 use FiveLab\Component\Ruler\Operator\Operators;
 use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
-/**
- * The visitor for visit nodes for elastic search.
- */
-class ElasticaVisitor
+readonly class ElasticaVisitor
 {
-    /**
-     * Visit node for target
-     *
-     * @param Query|RawSearchQuery $target
-     * @param Node                 $node
-     * @param array<string, mixed> $parameters
-     * @param Operators            $operators
-     *
-     * @return array<mixed>|string|\Closure
-     */
-    public function visit(object $target, Node $node, array $parameters, Operators $operators)
+    public function visit(Query|RawSearchQuery $target, Node $node, array $parameters, Operators $operators): array|string|int|float|bool|\Closure
     {
         if ($node instanceof BinaryNode) {
-            $leftSide = $this->visit($target, $node->getLeft(), $parameters, $operators);
-            $rightSide = $this->visit($target, $node->getRight(), $parameters, $operators);
+            $leftSide = $this->visit($target, $node->left, $parameters, $operators);
+            $rightSide = $this->visit($target, $node->right, $parameters, $operators);
 
-            $operator = $operators->get($node->getOperator());
+            $operator = $operators->get($node->operator);
 
             return $operator($leftSide, $rightSide);
         }
@@ -74,19 +61,15 @@ class ElasticaVisitor
         }
 
         if ($node instanceof ParameterNode) {
-            if (!\array_key_exists($node->getName(), $parameters)) {
-                throw new \LogicException(\sprintf(
-                    'The parameter "%s" is missed. Possible parameters are "%s".',
-                    $node->getName(),
-                    \implode('", "', \array_keys($parameters))
-                ));
-            }
-
-            return $parameters[$node->getName()];
+            return $parameters[$node->name] ?? throw new \LogicException(\sprintf(
+                'The parameter "%s" is missed. Possible parameters are "%s".',
+                $node->name,
+                \implode('", "', \array_keys($parameters))
+            ));
         }
 
         if ($node instanceof ConstantNode) {
-            return $node->getValue();
+            return $node->value;
         }
 
         throw new \InvalidArgumentException(\sprintf(

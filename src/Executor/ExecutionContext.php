@@ -33,27 +33,12 @@ class ExecutionContext
         $this->payload = $context;
     }
 
-    /**
-     * Add specific key to context
-     *
-     * @param string $key
-     * @param mixed  $data
-     */
-    public function set(string $key, $data): void
+    public function set(string $key, mixed$data): void
     {
         $this->payload[$key] = $data;
     }
 
-    /**
-     * Add element to specific element
-     *
-     * @param string      $key
-     * @param string|null $inner
-     * @param mixed       $data
-     *
-     * @return void
-     */
-    public function add(string $key, ?string $inner, $data): void
+    public function add(string $key, ?string $inner, mixed $data): void
     {
         if (!\array_key_exists($key, $this->payload)) {
             throw new \RuntimeException(\sprintf(
@@ -76,25 +61,12 @@ class ExecutionContext
         }
     }
 
-    /**
-     * Get data by key
-     *
-     * @param string $key
-     *
-     * @return mixed
-     *
-     * @throws \RuntimeException
-     */
-    public function get(string $key)
+    public function get(string $key): mixed
     {
-        if (!\array_key_exists($key, $this->payload)) {
-            throw new \RuntimeException(\sprintf(
-                'The data "%s" missed in context. Possible keys are "%s".',
-                $key,
-                \implode('", "', \array_keys($this->payload))
-            ));
-        }
-
-        return $this->payload[$key];
+        return $this->payload[$key] ?? throw new \RuntimeException(\sprintf(
+            'The data "%s" missed in context. Possible keys are "%s".',
+            $key,
+            \implode('", "', \array_keys($this->payload))
+        ));
     }
 }

@@ -23,20 +23,16 @@ use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
 /**
  * The target for ElasticSearch based on "ruflin/elastica" package.
+ *
+ * @implements TargetInterface<Query|RawSearchQuery>
  */
 class ElasticaTarget implements TargetInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function supports(object $target): bool
     {
         return $target instanceof Query || $target instanceof RawSearchQuery;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createExecutor(object $target): ExecutorInterface
     {
         $operators = new Operators([]);

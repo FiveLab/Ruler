@@ -14,13 +14,12 @@ declare(strict_types = 1);
 namespace FiveLab\Component\Ruler\Tests\Unit\Specification;
 
 use FiveLab\Component\Ruler\Specification\EmptySpecification;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class EmptySpecificationTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldSuccessCreate(): void
     {
         $spec = new EmptySpecification();

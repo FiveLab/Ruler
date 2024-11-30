@@ -13,44 +13,23 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Specification;
 
-/**
- * A simple specification
- */
 class SimpleSpecification implements SpecificationInterface
 {
-    /**
-     * @var string
-     */
-    private string $rule;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $parameters;
-
     /**
      * Constructor.
      *
      * @param string               $rule
      * @param array<string, mixed> $parameters
      */
-    public function __construct(string $rule, array $parameters)
+    public function __construct(private readonly string $rule, private readonly array $parameters)
     {
-        $this->rule = $rule;
-        $this->parameters = $parameters;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRule(): string
     {
         return $this->rule;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getParameters(): array
     {
         return $this->parameters;

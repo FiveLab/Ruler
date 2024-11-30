@@ -11,40 +11,24 @@
 
 declare(strict_types = 1);
 
-namespace FiveLab\Component\Ruler\Tests\Node;
+namespace FiveLab\Component\Ruler\Tests\Unit\Node;
 
 use FiveLab\Component\Ruler\Node\NameNode;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class NameNodeTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @param string $name
-     * @param array  $expectedSplittedParts
-     *
-     * @dataProvider provideData
-     */
+    #[Test]
+    #[TestWith(['bar', ['bar']])]
+    #[TestWith(['foo.bar', ['foo', 'bar']])]
+    #[TestWith(['foo\.bar.some', ['foo.bar', 'some']])]
+    #[TestWith(['foo\.bar\.some', ['foo.bar.some']])]
     public function shouldSuccessCreate(string $name, array $expectedSplittedParts): void
     {
         $node = new NameNode($name);
 
         self::assertEquals($expectedSplittedParts, $node->getSplittedParts());
-    }
-
-    /**
-     * Provide data for testing
-     *
-     * @return array[]
-     */
-    public function provideData(): array
-    {
-        return [
-            ['bar', ['bar']],
-            ['foo.bar', ['foo', 'bar']],
-            ['foo\.bar.some', ['foo.bar', 'some']],
-            ['foo\.bar\.some', ['foo.bar.some']],
-        ];
     }
 }
