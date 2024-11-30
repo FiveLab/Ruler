@@ -13,10 +13,9 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm;
 
-use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,7 +47,7 @@ class DoctrineOrmRulerTest extends TestCase
 
         if (\method_exists(EntityManager::class, 'create')) {
             $connection = new Connection([
-                'platform' => new MySQLPlatform(),
+                'platform' => new MySqlPlatform(),
             ], new Driver());
 
             $this->entityManager = EntityManager::create($connection, $configuration);
