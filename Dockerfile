@@ -16,6 +16,7 @@ RUN \
 # Install additional php extensions
 RUN \
     apt-get install -y --no-install-recommends && \
+    docker-php-ext-install pdo pdo_mysql && \
     yes | pecl install xdebug && \
     docker-php-ext-enable xdebug
 

@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Next release
-------------
+v1.3.0
+------
 
 * Support only PHP `~8.2`.
 * Refactor classes for use readonly properties.
