@@ -3,6 +3,7 @@
          xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/schema/11.3.xsd"
          colors="true"
          bootstrap="./vendor/autoload.php"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
 >
     <testsuites>
         <testsuite name="ruler tests">

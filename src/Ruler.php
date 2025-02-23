@@ -23,7 +23,7 @@ readonly class Ruler implements RulerInterface
     private Lexer $lexer;
     private Parser $parser;
 
-    public function __construct(private TargetInterface $target, Lexer $lexer = null, Parser $parser = null)
+    public function __construct(private TargetInterface $target, ?Lexer $lexer = null, ?Parser $parser = null)
     {
         $this->lexer = $lexer ?: new Lexer();
         $this->parser = $parser ?: new Parser();
