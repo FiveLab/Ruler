@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v1.4.0
+------
+
+* Added `FiveLab\Component\Ruler\Target\ClickHouseTarget` for build the conditions for ClickHouse.
+* Added `FiveLab\Component\Ruler\Query\ClickHouseQuery` for use it as target for ClickHouse.
+
 v1.3.0
 ------
 
