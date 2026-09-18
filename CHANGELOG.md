@@ -7,6 +7,7 @@ Unreleased
 * **Security:** fixed arbitrary PHP function invocation when a property name matches a function
   name (e.g. `date`, `count`, `exec`). Now only nested-query closures are called, plain field
   names are never treated as callable.
+* Fixed Doctrine ORM target dropping parameters already set on the query builder before `apply()`.
 
 v1.4.0
 ------

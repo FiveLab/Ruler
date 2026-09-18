@@ -13,8 +13,6 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Executor\DoctrineOrm;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use FiveLab\Component\Ruler\Executor\ExecutionContext;
 use FiveLab\Component\Ruler\Executor\ExecutorInterface;
@@ -40,7 +38,11 @@ readonly class DoctrineOrmExecutor implements ExecutorInterface
         $rule = $this->visitor->visit($target, $node, $parameters, $this->operators, $context);
 
         $target->andWhere($rule);
-        $target->setParameters($this->makeParametersForQueryBuilder($parameters)); // @phpstan-ignore-line
+
+        foreach ($parameters as $name => $value) {
+            // setParameter() keeps parameters already set on the query builder; setParameters() would replace them.
+            $target->setParameter($name, $value);
+        }
 
         $joins = $context->get('joins');
         $addedJoins = [];
@@ -57,27 +59,5 @@ readonly class DoctrineOrmExecutor implements ExecutorInterface
 
             $addedJoins[] = $joinKey;
         }
-    }
-
-    private function makeParametersForQueryBuilder(array $parameters): array|ArrayCollection
-    {
-        static $expectedCollection = null;
-
-        if (null === $expectedCollection) {
-            $methodRef = new \ReflectionMethod(QueryBuilder::class, 'setParameters');
-            $argumentRef = $methodRef->getParameters()[0];
-
-            $expectedCollection = $argumentRef->getType()?->getName() === ArrayCollection::class; // @phpstan-ignore-line
-        }
-
-        if ($expectedCollection) {
-            $parameters = \array_map(static function (string $key, mixed $value): Parameter {
-                return new Parameter($key, $value);
-            }, \array_keys($parameters), \array_values($parameters));
-
-            $parameters = new ArrayCollection($parameters);
-        }
-
-        return $parameters;
     }
 }
