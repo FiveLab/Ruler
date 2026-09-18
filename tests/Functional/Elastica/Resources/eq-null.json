@@ -1,0 +1,15 @@
+{
+    "rule": "tag = null",
+    "params": {},
+    "query": {
+        "bool": {
+            "must_not": [
+                {
+                    "exists": {
+                        "field": "tag"
+                    }
+                }
+            ]
+        }
+    }
+}

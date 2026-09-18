@@ -1,0 +1,9 @@
+{
+    "rule": "tag != null",
+    "params": {},
+    "query": {
+        "exists": {
+            "field": "tag"
+        }
+    }
+}

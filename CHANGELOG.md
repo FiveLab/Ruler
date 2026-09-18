@@ -13,6 +13,9 @@ Unreleased
 * Fixed Elastica target overwriting the whole request body: `apply()` now keeps other query
   parts (`size`, `sort`, `aggs`, ...) and combines with an already collected query via `bool.must`
   instead of replacing it, so `apply()` can be called several times on the same query.
+* Fixed `null` handling for the Elasticsearch target: a parameter passed with a `null` value is no
+  longer reported as missing, and `field = null` / `field != null` now build an `exists` check
+  (`must_not exists` / `exists`) instead of failing.
 
 v1.4.0
 ------

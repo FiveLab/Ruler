@@ -122,6 +122,9 @@ class ElasticaRulerTest extends TestCase
             __DIR__.'/Resources/nested.json',
             __DIR__.'/Resources/combined-logical.json',
             __DIR__.'/Resources/name-equals-php-function.json',
+            __DIR__.'/Resources/eq-null.json',
+            __DIR__.'/Resources/not-eq-null.json',
+            __DIR__.'/Resources/eq-null-parameter.json',
         ];
 
         return \array_merge(

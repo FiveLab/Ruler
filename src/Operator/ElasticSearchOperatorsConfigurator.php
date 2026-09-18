@@ -22,6 +22,33 @@ class ElasticSearchOperatorsConfigurator implements OperatorsConfiguratorInterfa
         $operators->add('in', self::makeTermCallableForOperator('must', 'terms', false));
         $operators->add('not in', self::makeTermCallableForOperator('must_not', 'terms', false));
 
+        // Elasticsearch has no NULL: map the null constant to an "exists" check.
+        $operators->add('=', static function ($a, $b) {
+            if (null !== $b) {
+                return null;
+            }
+
+            // field = null -> field is missing (or explicitly null).
+            return [
+                'bool' => [
+                    'must_not' => [
+                        ['exists' => ['field' => $a]],
+                    ],
+                ],
+            ];
+        });
+
+        $operators->add('!=', static function ($a, $b) {
+            if (null !== $b) {
+                return null;
+            }
+
+            // field != null -> field exists.
+            return [
+                'exists' => ['field' => $a],
+            ];
+        });
+
         $operators->add('>=', self::makeRangeCallableForOperator('gte'));
         $operators->add('>', self::makeRangeCallableForOperator('gt'));
         $operators->add('<=', self::makeRangeCallableForOperator('lte'));
