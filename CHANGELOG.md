@@ -10,6 +10,9 @@ Unreleased
 * Fixed Doctrine ORM target dropping parameters already set on the query builder before `apply()`.
 * Fixed Doctrine ORM target adding a duplicate join alias on a repeated `apply()` (or when the
   join alias already existed on the query builder), which raised "'<alias>' is already defined".
+* Fixed Elastica target overwriting the whole request body: `apply()` now keeps other query
+  parts (`size`, `sort`, `aggs`, ...) and combines with an already collected query via `bool.must`
+  instead of replacing it, so `apply()` can be called several times on the same query.
 
 v1.4.0
 ------
