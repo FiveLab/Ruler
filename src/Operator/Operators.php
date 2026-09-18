@@ -37,7 +37,9 @@ class Operators
         $operators = $this;
 
         $innerHandler = static function ($a, $b, $operator) use ($handler, $operators) {
-            if (\is_callable($a)) {
+            // Detect the nested-query closure explicitly: is_callable() would also match a field
+            // name equal to a PHP function (date, count, exec, ...) and invoke it.
+            if ($a instanceof \Closure) {
                 return $a($b, $operator, $operators);
             }
 

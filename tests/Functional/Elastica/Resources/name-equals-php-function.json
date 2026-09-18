@@ -1,0 +1,19 @@
+{
+    "rule": "count = :value",
+    "params": {
+        "value": 5
+    },
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "term": {
+                        "count": {
+                            "value": 5
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* **Security:** fixed arbitrary PHP function invocation when a property name matches a function
+  name (e.g. `date`, `count`, `exec`). Now only nested-query closures are called, plain field
+  names are never treated as callable.
+
 v1.4.0
 ------
 
