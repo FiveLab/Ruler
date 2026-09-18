@@ -39,9 +39,15 @@ class DoctrineOrmRulerTest extends TestCase
     {
         $configuration = new Configuration();
         $configuration->setMetadataDriverImpl(new AttributeDriver([__DIR__.'/Entities']));
-        $configuration->setProxyDir(\sys_get_temp_dir().'/Proxy');
-        $configuration->setProxyNamespace('Proxy');
-        $configuration->setAutoGenerateProxyClasses(false);
+
+        if (\PHP_VERSION_ID >= 80400 && \method_exists($configuration, 'enableNativeLazyObjects')) {
+            // Symfony VarExporter 8 doesn't have LazyGhost, so Doctrine ORM requires native lazy objects on PHP 8.4+.
+            $configuration->enableNativeLazyObjects(true);
+        } else {
+            $configuration->setProxyDir(\sys_get_temp_dir().'/Proxy');
+            $configuration->setProxyNamespace('Proxy');
+            $configuration->setAutoGenerateProxyClasses(false);
+        }
 
         $emConstructorRef = new \ReflectionMethod(EntityManager::class, '__construct');
 
