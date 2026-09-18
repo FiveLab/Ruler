@@ -73,6 +73,38 @@ class ElasticaRulerTest extends TestCase
         ]);
     }
 
+    #[Test]
+    #[TestWith([new Query()])]
+    #[TestWith([new RawSearchQuery()])]
+    public function shouldCombineQueriesOnRepeatedApply(object $query): void
+    {
+        $this->ruler->apply($query, 'price > :price', ['price' => 5]);
+        $this->ruler->apply($query, 'tag = :tag', ['tag' => 'foo']);
+
+        self::assertEquals([
+            'bool' => [
+                'must' => [
+                    ['range' => ['price' => ['gt' => 5]]],
+                    ['bool' => ['must' => [['term' => ['tag' => ['value' => 'foo']]]]]],
+                ],
+            ],
+        ], $query->toArray()['query']);
+    }
+
+    #[Test]
+    public function shouldKeepOtherQueryPartsOnApply(): void
+    {
+        $query = new Query();
+        $query->setSize(10);
+
+        $this->ruler->apply($query, 'price > :price', ['price' => 5]);
+
+        $array = $query->toArray();
+
+        self::assertSame(10, $array['size']);
+        self::assertEquals(['range' => ['price' => ['gt' => 5]]], $array['query']);
+    }
+
     public static function provideDataForApply(): array
     {
         $files = [
@@ -89,6 +121,10 @@ class ElasticaRulerTest extends TestCase
             __DIR__.'/Resources/or.json',
             __DIR__.'/Resources/nested.json',
             __DIR__.'/Resources/combined-logical.json',
+            __DIR__.'/Resources/name-equals-php-function.json',
+            __DIR__.'/Resources/eq-null.json',
+            __DIR__.'/Resources/not-eq-null.json',
+            __DIR__.'/Resources/eq-null-parameter.json',
         ];
 
         return \array_merge(

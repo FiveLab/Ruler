@@ -24,7 +24,7 @@ use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
 readonly class ElasticaVisitor
 {
-    public function visit(Query|RawSearchQuery $target, Node $node, array $parameters, Operators $operators): array|string|int|float|bool|\Closure
+    public function visit(Query|RawSearchQuery $target, Node $node, array $parameters, Operators $operators): array|string|int|float|bool|\Closure|null
     {
         if ($node instanceof BinaryNode) {
             $leftSide = $this->visit($target, $node->left, $parameters, $operators);
@@ -61,11 +61,16 @@ readonly class ElasticaVisitor
         }
 
         if ($node instanceof ParameterNode) {
-            return $parameters[$node->name] ?? throw new \LogicException(\sprintf(
-                'The parameter "%s" is missed. Possible parameters are "%s".',
-                $node->name,
-                \implode('", "', \array_keys($parameters))
-            ));
+            // array_key_exists(), not "??": a parameter passed as null must resolve to null, not "missing".
+            if (!\array_key_exists($node->name, $parameters)) {
+                throw new \LogicException(\sprintf(
+                    'The parameter "%s" is missed. Possible parameters are "%s".',
+                    $node->name,
+                    \implode('", "', \array_keys($parameters))
+                ));
+            }
+
+            return $parameters[$node->name];
         }
 
         if ($node instanceof ConstantNode) {

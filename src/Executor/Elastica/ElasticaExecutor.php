@@ -33,8 +33,31 @@ readonly class ElasticaExecutor implements ExecutorInterface
         /** @var array<string, mixed> $query */
         $query = $this->visitor->visit($target, $node, $parameters, $this->operators);
 
-        $target->setRawQuery([
-            'query' => $query,
-        ]);
+        if ($target instanceof RawSearchQuery) {
+            $body = $target->toArray();
+            $body['query'] = $this->mergeQuery($body['query'] ?? null, $query);
+
+            $target->setRawQuery($body);
+
+            return;
+        }
+
+        // Set only the "query" part (setRawQuery() would drop size/sort/aggs).
+        $existing = $target->hasParam('query') ? $target->getParam('query') : null;
+
+        $target->setParam('query', $this->mergeQuery($existing, $query));
+    }
+
+    private function mergeQuery(mixed $existing, array $query): array
+    {
+        if (null === $existing || [] === $existing) {
+            return $query;
+        }
+
+        return [
+            'bool' => [
+                'must' => [$existing, $query],
+            ],
+        ];
     }
 }

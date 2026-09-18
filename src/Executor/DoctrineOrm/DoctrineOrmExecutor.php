@@ -13,8 +13,6 @@ declare(strict_types = 1);
 
 namespace FiveLab\Component\Ruler\Executor\DoctrineOrm;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use FiveLab\Component\Ruler\Executor\ExecutionContext;
 use FiveLab\Component\Ruler\Executor\ExecutorInterface;
@@ -40,44 +38,26 @@ readonly class DoctrineOrmExecutor implements ExecutorInterface
         $rule = $this->visitor->visit($target, $node, $parameters, $this->operators, $context);
 
         $target->andWhere($rule);
-        $target->setParameters($this->makeParametersForQueryBuilder($parameters)); // @phpstan-ignore-line
+
+        foreach ($parameters as $name => $value) {
+            // setParameter() keeps parameters already set on the query builder; setParameters() would replace them.
+            $target->setParameter($name, $value);
+        }
 
         $joins = $context->get('joins');
-        $addedJoins = [];
+
+        // Skip aliases already on the query builder, so a repeated apply() doesn't duplicate a join.
+        $existingAliases = \array_fill_keys($target->getAllAliases(), true);
 
         foreach ($joins as $join) {
-            $joinKey = $join['join'].$join['alias'];
-
-            if (\in_array($joinKey, $addedJoins, true)) {
+            if (isset($existingAliases[$join['alias']])) {
                 // JOIN already exist.
                 continue;
             }
 
             $target->leftJoin($join['join'], $join['alias']);
 
-            $addedJoins[] = $joinKey;
+            $existingAliases[$join['alias']] = true;
         }
-    }
-
-    private function makeParametersForQueryBuilder(array $parameters): array|ArrayCollection
-    {
-        static $expectedCollection = null;
-
-        if (null === $expectedCollection) {
-            $methodRef = new \ReflectionMethod(QueryBuilder::class, 'setParameters');
-            $argumentRef = $methodRef->getParameters()[0];
-
-            $expectedCollection = $argumentRef->getType()?->getName() === ArrayCollection::class; // @phpstan-ignore-line
-        }
-
-        if ($expectedCollection) {
-            $parameters = \array_map(static function (string $key, mixed $value): Parameter {
-                return new Parameter($key, $value);
-            }, \array_keys($parameters), \array_values($parameters));
-
-            $parameters = new ArrayCollection($parameters);
-        }
-
-        return $parameters;
     }
 }

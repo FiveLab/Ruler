@@ -104,6 +104,53 @@ class DoctrineOrmRulerTest extends TestCase
         $this->ruler->apply($qb, 'foo.bar', []);
     }
 
+    #[Test]
+    public function shouldKeepParametersAlreadySetOnQueryBuilder(): void
+    {
+        $qb = (new QueryBuilder($this->entityManager))
+            ->from(Product::class, 'products')
+            ->select('products')
+            ->andWhere('products.published = :published')
+            ->setParameter('published', true);
+
+        $this->ruler->apply($qb, 'price > :price', ['price' => 100]);
+
+        $parameters = [];
+
+        /** @var Parameter $parameter */
+        foreach ($qb->getParameters() as $parameter) {
+            $parameters[$parameter->getName()] = $parameter->getValue();
+        }
+
+        self::assertEquals([
+            'published' => true,
+            'price'     => 100,
+        ], $parameters);
+    }
+
+    #[Test]
+    public function shouldNotDuplicateJoinOnRepeatedApply(): void
+    {
+        $qb = (new QueryBuilder($this->entityManager))
+            ->from(Product::class, 'products')
+            ->select('products');
+
+        $this->ruler->apply($qb, 'category.key = :key', ['key' => 'foo']);
+        $this->ruler->apply($qb, 'category.enabled = :enabled', ['enabled' => true]);
+
+        /** @var array<string, array<Join>> $joins */
+        $joins = $qb->getDQLPart('join');
+
+        self::assertCount(1, $joins['products']);
+        self::assertEquals('products.category', $joins['products'][0]->getJoin());
+        self::assertEquals('category', $joins['products'][0]->getAlias());
+
+        // The generated DQL must be valid - a duplicated join alias would throw here.
+        $qb->getQuery();
+
+        $this->addToAssertionCount(1);
+    }
+
     public static function provideDataForApply(): array
     {
         return [

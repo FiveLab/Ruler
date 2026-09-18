@@ -1,0 +1,17 @@
+{
+    "rule": "tag = :tag",
+    "params": {
+        "tag": null
+    },
+    "query": {
+        "bool": {
+            "must_not": [
+                {
+                    "exists": {
+                        "field": "tag"
+                    }
+                }
+            ]
+        }
+    }
+}

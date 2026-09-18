@@ -1,6 +1,22 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* **Security:** fixed arbitrary PHP function invocation when a property name matches a function
+  name (e.g. `date`, `count`, `exec`). Now only nested-query closures are called, plain field
+  names are never treated as callable.
+* Fixed Doctrine ORM target dropping parameters already set on the query builder before `apply()`.
+* Fixed Doctrine ORM target adding a duplicate join alias on a repeated `apply()` (or when the
+  join alias already existed on the query builder), which raised "'<alias>' is already defined".
+* Fixed Elastica target overwriting the whole request body: `apply()` now keeps other query
+  parts (`size`, `sort`, `aggs`, ...) and combines with an already collected query via `bool.must`
+  instead of replacing it, so `apply()` can be called several times on the same query.
+* Fixed `null` handling for the Elasticsearch target: a parameter passed with a `null` value is no
+  longer reported as missing, and `field = null` / `field != null` now build an `exists` check
+  (`must_not exists` / `exists`) instead of failing.
+
 v1.4.0
 ------
 

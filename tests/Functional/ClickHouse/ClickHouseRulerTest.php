@@ -220,6 +220,12 @@ class ClickHouseRulerTest extends TestCase
                 ['amount' => 100],
                 '(`money.amount` > :amount)',
             ],
+
+            'name equals php function' => [
+                'date >= :from',
+                ['from' => '2026-01-01'],
+                '(date >= :from)',
+            ],
         ];
     }
 }
