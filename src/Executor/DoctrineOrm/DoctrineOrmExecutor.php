@@ -45,19 +45,19 @@ readonly class DoctrineOrmExecutor implements ExecutorInterface
         }
 
         $joins = $context->get('joins');
-        $addedJoins = [];
+
+        // Skip aliases already on the query builder, so a repeated apply() doesn't duplicate a join.
+        $existingAliases = \array_fill_keys($target->getAllAliases(), true);
 
         foreach ($joins as $join) {
-            $joinKey = $join['join'].$join['alias'];
-
-            if (\in_array($joinKey, $addedJoins, true)) {
+            if (isset($existingAliases[$join['alias']])) {
                 // JOIN already exist.
                 continue;
             }
 
             $target->leftJoin($join['join'], $join['alias']);
 
-            $addedJoins[] = $joinKey;
+            $existingAliases[$join['alias']] = true;
         }
     }
 }

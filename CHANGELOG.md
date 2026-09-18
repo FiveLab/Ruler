@@ -8,6 +8,8 @@ Unreleased
   name (e.g. `date`, `count`, `exec`). Now only nested-query closures are called, plain field
   names are never treated as callable.
 * Fixed Doctrine ORM target dropping parameters already set on the query builder before `apply()`.
+* Fixed Doctrine ORM target adding a duplicate join alias on a repeated `apply()` (or when the
+  join alias already existed on the query builder), which raised "'<alias>' is already defined".
 
 v1.4.0
 ------
