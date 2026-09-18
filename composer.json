@@ -1,7 +1,7 @@
 {
     "name": "fivelab/ruler",
-    "description": "Add rule for satisfy objects and generate queries based on specifications.",
-    "keywords": [ "ruler", "rule", "satisfy", "specification", "query" ],
+    "description": "Apply string filter rules to Doctrine ORM, Elasticsearch/Elastica and ClickHouse query builders.",
+    "keywords": [ "ruler", "rule", "filter", "query-builder", "specification", "doctrine", "doctrine-orm", "elasticsearch", "elastica", "opensearch", "clickhouse", "rulerz", "dsl", "search" ],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -19,6 +19,11 @@
 
     "require": {
         "php": "~8.2"
+    },
+
+    "suggest": {
+        "doctrine/orm": "To apply rules to a Doctrine ORM QueryBuilder (DoctrineOrmTarget).",
+        "ruflin/elastica": "To apply rules to Elasticsearch/OpenSearch queries (ElasticaTarget)."
     },
 
     "require-dev": {
