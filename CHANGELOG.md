@@ -19,11 +19,11 @@ Unreleased
   A rule of a single parameter (`:query`) put its value into the request as the whole query: add
   such a query to the request yourself.
 * Fixed parameter values for the Elasticsearch target: an object failed with a `TypeError` (inside
-  a list it was encoded as a JSON object), and a filtered list (`array_filter`) was encoded as a
-  JSON object, so `terms` silently matched nothing. Now a `DateTimeInterface` becomes an ISO 8601
-  string with milliseconds, a backed enum its value, a `Stringable` a string, a list with missed
-  keys is reindexed, and an array with string keys (a terms lookup) is kept as an object. Any other
-  object throws a `LogicException`.
+  a list it went into the request as it was, so a date became a JSON object), and a filtered list
+  (`array_filter`) was encoded as a JSON object, so `terms` silently matched nothing. Now a
+  `DateTimeInterface` becomes an ISO 8601 string with milliseconds, a backed enum its value, a
+  `Stringable` a string, a list with missed keys is reindexed, and an array with string keys (a
+  terms lookup) is kept as an object. Any other object throws a `LogicException`.
 
 v1.4.1
 ------
