@@ -119,6 +119,24 @@ class CompositeSpecificationTest extends TestCase
     }
 
     #[Test]
+    public function shouldSuccessFixDuplicatesOfNestedSpecifications(): void
+    {
+        $spec = new CompositeSpecification(
+            'AND',
+            new CompositeSpecification('OR', new SimpleSpecification('a = :p', ['p' => 1]), new SimpleSpecification('b = :p', ['p' => 2])),
+            new CompositeSpecification('OR', new SimpleSpecification('c = :p', ['p' => 3]), new SimpleSpecification('d = :p', ['p' => 4]))
+        );
+
+        self::assertEquals('((a = :p OR b = :p_1) AND (c = :p_2 OR d = :p_1_1))', $spec->getRule());
+        self::assertEquals([
+            'p'     => 1,
+            'p_1'   => 2,
+            'p_2'   => 3,
+            'p_1_1' => 4,
+        ], $spec->getParameters());
+    }
+
+    #[Test]
     public function shouldSuccessAddSpecifications(): void
     {
         $composite = new CompositeSpecification('AND');
