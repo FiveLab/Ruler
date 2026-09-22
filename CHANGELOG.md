@@ -13,6 +13,10 @@ Unreleased
 * Elasticsearch target: a comparison where the left side is not a field (`:max > price`, `100 = id`),
   where both sides are fields (`price > cost`), or an `and` / `or` over something that is not a
   condition now throws a `LogicException` instead of silently building a meaningless query.
+* Elasticsearch target: parameter values are normalized — a `DateTimeInterface` becomes an ISO 8601
+  string, a backed enum becomes its value, a `Stringable` becomes a string, and an array is reindexed
+  so a filtered list (`array_filter`) is encoded as a JSON array and not as an object. Any other
+  object throws a `LogicException` instead of a `TypeError` from the visitor.
 
 v1.4.1
 ------

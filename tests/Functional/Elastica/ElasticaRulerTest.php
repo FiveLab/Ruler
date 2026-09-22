@@ -17,6 +17,7 @@ use Elastica\Query;
 use FiveLab\Component\Ruler\Query\RawSearchQuery;
 use FiveLab\Component\Ruler\Ruler;
 use FiveLab\Component\Ruler\Target\ElasticaTarget;
+use FiveLab\Component\Ruler\Tests\Functional\Elastica\Fixtures\OrderStatus;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -87,6 +88,28 @@ class ElasticaRulerTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('provideValuesForNormalize')]
+    public function shouldNormalizeValue(string $rule, array $params, array $expectedQuery): void
+    {
+        $query = new RawSearchQuery();
+
+        $this->ruler->apply($query, $rule, $params);
+
+        self::assertEquals($expectedQuery, $query->toArray()['query']);
+    }
+
+    #[Test]
+    #[TestWith([new Query()])]
+    #[TestWith([new RawSearchQuery()])]
+    public function shouldFailForObjectValue(object $query): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The value of the parameter "id" must be a scalar, a date, a backed enum or a list of them, "stdClass" given.');
+
+        $this->ruler->apply($query, 'id = :id', ['id' => new \stdClass()]);
+    }
+
+    #[Test]
     #[TestWith([new Query()])]
     #[TestWith([new RawSearchQuery()])]
     public function shouldCombineQueriesOnRepeatedApply(object $query): void
@@ -116,6 +139,42 @@ class ElasticaRulerTest extends TestCase
 
         self::assertSame(10, $array['size']);
         self::assertEquals(['range' => ['price' => ['gt' => 5]]], $array['query']);
+    }
+
+    public static function provideValuesForNormalize(): array
+    {
+        $stringableId = new class() implements \Stringable {
+            public function __toString(): string
+            {
+                return '9d46f5ca';
+            }
+        };
+
+        return [
+            'date' => [
+                'created > :created',
+                ['created' => new \DateTimeImmutable('2026-01-02 03:04:05', new \DateTimeZone('UTC'))],
+                ['range' => ['created' => ['gt' => '2026-01-02T03:04:05+00:00']]],
+            ],
+
+            'backed enum' => [
+                'status = :status',
+                ['status' => OrderStatus::Paid],
+                ['bool' => ['must' => [['term' => ['status' => ['value' => 'paid']]]]]],
+            ],
+
+            'stringable' => [
+                'id = :id',
+                ['id' => $stringableId],
+                ['bool' => ['must' => [['term' => ['id' => ['value' => '9d46f5ca']]]]]],
+            ],
+
+            'list with missed keys' => [
+                'id in (:ids)',
+                ['ids' => \array_filter(['123', '', '124'])],
+                ['bool' => ['must' => [['terms' => ['id' => ['123', '124']]]]]],
+            ],
+        ];
     }
 
     public static function provideDataForApply(): array

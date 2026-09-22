@@ -74,7 +74,7 @@ readonly class ElasticaVisitor
                 ));
             }
 
-            return $parameters[$node->name];
+            return $this->normalizeValue($parameters[$node->name], $node->name);
         }
 
         if ($node instanceof ConstantNode) {
@@ -131,5 +131,39 @@ readonly class ElasticaVisitor
             $node instanceof BinaryNode    => \sprintf('the condition with the operator "%s"', $node->operator),
             default                        => \sprintf('the node "%s"', \get_class($node)),
         };
+    }
+
+    private function normalizeValue(mixed $value, string $parameterName): array|string|int|float|bool|null
+    {
+        // Elasticsearch accepts only plain values, and an array must be a list: a filtered array
+        // (array_filter) keeps the original keys and would be encoded as a JSON object.
+        if (\is_array($value)) {
+            return \array_values(\array_map(
+                fn (mixed $item): array|string|int|float|bool|null => $this->normalizeValue($item, $parameterName),
+                $value
+            ));
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
+        }
+
+        if ($value instanceof \BackedEnum) {
+            return $value->value;
+        }
+
+        if ($value instanceof \Stringable) {
+            return (string) $value;
+        }
+
+        if (\is_object($value)) {
+            throw new \LogicException(\sprintf(
+                'The value of the parameter "%s" must be a scalar, a date, a backed enum or a list of them, "%s" given.',
+                $parameterName,
+                \get_class($value)
+            ));
+        }
+
+        return $value;
     }
 }
