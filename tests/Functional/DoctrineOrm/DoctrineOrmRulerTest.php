@@ -328,7 +328,7 @@ class DoctrineOrmRulerTest extends TestCase
 
             'embedded' => [
                 'amount.currency = :currency AND amount.amount > :amount',
-                ['currency' => 'USD', 'amount' > 100],
+                ['currency' => 'USD', 'amount' => 100],
                 '((products.amount.currency = :currency) AND (products.amount.amount > :amount))',
             ],
         ];
