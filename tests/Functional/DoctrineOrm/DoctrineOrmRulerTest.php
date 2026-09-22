@@ -28,6 +28,7 @@ use FiveLab\Component\Ruler\Target\DoctrineOrmTarget;
 use FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Product;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class DoctrineOrmRulerTest extends TestCase
@@ -118,16 +119,18 @@ class DoctrineOrmRulerTest extends TestCase
     }
 
     #[Test]
-    public function shouldThrowErrorForUnknownFieldOfEmbeddable(): void
+    #[TestWith(['total.money.nosuch'])]
+    #[TestWith(['total.money'])]
+    public function shouldThrowErrorForUnknownFieldOfEmbeddable(string $path): void
     {
         $qb = (new QueryBuilder($this->entityManager))
             ->from(Product::class, 'products')
             ->select('products');
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('The path "total.money.nosuch" is not a field of the embeddable "total".');
+        $this->expectExceptionMessage(\sprintf('The path "%s" is not a field of the embeddable "total".', $path));
 
-        $this->ruler->apply($qb, 'total.money.nosuch > :amount', ['amount' => 100]);
+        $this->ruler->apply($qb, $path.' > :amount', ['amount' => 100]);
     }
 
     #[Test]

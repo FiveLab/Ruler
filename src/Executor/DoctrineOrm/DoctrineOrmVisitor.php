@@ -94,7 +94,8 @@ readonly class DoctrineOrmVisitor
                 // embeddable ("total.money.amount") keeps all its parts.
                 $embeddedName = \implode('.', [$part, ...$parts, $lastField]);
 
-                if ($metadata->hasField($embeddedName)) {
+                // Not hasField(): it is true for a nested embeddable too ("total.money"), which is not a field.
+                if (isset($metadata->fieldMappings[$embeddedName])) {
                     return ($alias ?? $rootAlias).'.'.$embeddedName;
                 }
 
