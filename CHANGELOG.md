@@ -14,6 +14,10 @@ Unreleased
   "a field to a value" (`:max > price`, `100 = id`, `price > cost`) and for an `and` / `or` over
   something that is not a condition (`id = :id and published`). They throw a `LogicException` now,
   as does a rule that is not a condition at all (`published`), which failed with a `TypeError`.
+  **Behaviour change:** two kinds of rules that used to work throw now as well. A word on the right
+  side (`status = paid`) was compared as a string: pass the value as a parameter (`status = :status`).
+  A rule of a single parameter (`:query`) put its value into the request as the whole query: add
+  such a query to the request yourself.
 * Fixed parameter values for the Elasticsearch target: an object failed with a `TypeError` (inside
   a list it was encoded as a JSON object), and a filtered list (`array_filter`) was encoded as a
   JSON object, so `terms` silently matched nothing. Now a `DateTimeInterface` becomes an ISO 8601
