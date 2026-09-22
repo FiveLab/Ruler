@@ -68,8 +68,8 @@ readonly class Lexer
                 // Operator
                 $tokens[] = new Token(Token::TYPE_OPERATOR, $cursor + 1, \strtolower($match[1]));
                 $cursor += \strlen($match[0]);
-            } elseif (\preg_match('/([a-z_\.\d\\\]+)/Ai', $expression, $match, 0, $cursor)) {
-                // Property
+            } elseif (\preg_match('/(?:[a-z_\d]|\\\\\.)+(?:\.(?:[a-z_\d]|\\\\\.)+)*/Ai', $expression, $match, 0, $cursor)) {
+                // Property: parts separated by dots, each part of letters, digits, "_" and escaped dots ("\.").
                 $tokens[] = new Token(Token::TYPE_PROPERTY, $cursor + 1, $match[0]);
                 $cursor += \strlen($match[0]);
             } elseif (\preg_match('/:([a-z_\d]+)/Ai', $expression, $match, 0, $cursor)) {
