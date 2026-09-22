@@ -113,7 +113,7 @@ class DoctrineOrmRulerTest extends TestCase
             ->select('products');
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('The part "foo" in path "foo.bar" is no an association and not embeddable.');
+        $this->expectExceptionMessage('The part "foo" in path "foo.bar" is not an association and not an embeddable.');
 
         $this->ruler->apply($qb, 'foo.bar', []);
     }

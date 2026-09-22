@@ -108,7 +108,7 @@ readonly class DoctrineOrmVisitor
                 }
 
                 throw new \LogicException(\sprintf(
-                    'The part "%s" in path "%s" is no an association and not embeddable.',
+                    'The part "%s" in path "%s" is not an association and not an embeddable.',
                     $part,
                     $node->name
                 ));
