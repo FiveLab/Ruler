@@ -24,6 +24,9 @@ Unreleased
   `DateTimeInterface` becomes an ISO 8601 string with milliseconds, a backed enum its value, a
   `Stringable` a string, a list with missed keys is reindexed, and an array with string keys (a
   terms lookup) is kept as an object. Any other object throws a `LogicException`.
+* Doctrine ORM target: an escaped dot in a field name (`money\.amount`) built an invalid DQL
+  condition (`.money.amount`). It throws a `LogicException` now — DQL field names can't contain
+  a dot, so escaping is only for the Elasticsearch and ClickHouse targets.
 
 v1.4.1
 ------

@@ -41,14 +41,23 @@ readonly class DoctrineOrmVisitor
         }
 
         if ($node instanceof NameNode) {
-            $name = $context->get('rootAlias').'.'.$node->name;
+            $parts = $node->getSplittedParts();
 
-            if (\str_contains($node->name, '.')) {
-                // Maybe join detected.
-                $name = $this->detectJoins($target, $node, $context);
+            foreach ($parts as $part) {
+                if (\str_contains($part, '.')) {
+                    throw new \LogicException(\sprintf(
+                        'The escaped dot in the field "%s" is not supported by the Doctrine ORM target.',
+                        $node->name
+                    ));
+                }
             }
 
-            return $name;
+            if (\count($parts) > 1) {
+                // Maybe join detected.
+                return $this->detectJoins($target, $node, $context);
+            }
+
+            return $context->get('rootAlias').'.'.$node->name;
         }
 
         if ($node instanceof ParameterNode) {

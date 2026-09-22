@@ -118,6 +118,19 @@ class DoctrineOrmRulerTest extends TestCase
     }
 
     #[Test]
+    public function shouldThrowErrorForEscapedDot(): void
+    {
+        $qb = (new QueryBuilder($this->entityManager))
+            ->from(Product::class, 'products')
+            ->select('products');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The escaped dot in the field "amount\.amount" is not supported by the Doctrine ORM target.');
+
+        $this->ruler->apply($qb, 'amount\.amount > :amount', ['amount' => 100]);
+    }
+
+    #[Test]
     public function shouldKeepParametersAlreadySetOnQueryBuilder(): void
     {
         $qb = (new QueryBuilder($this->entityManager))
