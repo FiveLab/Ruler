@@ -14,6 +14,7 @@ declare(strict_types = 1);
 namespace FiveLab\Component\Ruler\Executor\DoctrineOrm;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Lexer as DqlLexer;
 use Doctrine\ORM\QueryBuilder;
 use FiveLab\Component\Ruler\Executor\ExecutionContext;
 use FiveLab\Component\Ruler\Node\BinaryNode;
@@ -84,7 +85,8 @@ readonly class DoctrineOrmVisitor
         $metadata = $this->entityManager->getClassMetadata($rootEntity);
 
         $lastField = \array_pop($parts);
-        $aliases = [];
+        $aliasParts = [];
+        $alias = null;
 
         while (null !== ($part = \array_shift($parts))) {
             if (!$metadata->hasAssociation($part)) {
@@ -93,7 +95,7 @@ readonly class DoctrineOrmVisitor
                 $embeddedName = \implode('.', [$part, ...$parts, $lastField]);
 
                 if ($metadata->hasField($embeddedName)) {
-                    return \count($aliases) ? \implode('_', $aliases).'.'.$embeddedName : $rootAlias.'.'.$embeddedName;
+                    return ($alias ?? $rootAlias).'.'.$embeddedName;
                 }
 
                 throw new \LogicException(\sprintf(
@@ -103,28 +105,52 @@ readonly class DoctrineOrmVisitor
                 ));
             }
 
-            if (!\count($aliases)) {
-                // It's a first join. Join with root alias.
-                $context->add('joins', null, [
-                    'join'  => $context->get('rootAlias').'.'.$part,
-                    'alias' => $part,
-                ]);
+            $join = ($alias ?? $rootAlias).'.'.$part;
 
-                $aliases[] = $part;
-            } else {
-                $alias = \implode('_', $aliases);
-                $aliases[] = $part;
+            $aliasParts[] = $part;
+            $alias = self::makeAlias($aliasParts);
 
-                $context->add('joins', null, [
-                    'join'  => $alias.'.'.$part,
-                    'alias' => \implode('_', $aliases),
-                ]);
-            }
+            $context->add('joins', null, [
+                'join'  => $join,
+                'alias' => $alias,
+            ]);
 
             $association = $metadata->getAssociationMapping($part);
             $metadata = $this->entityManager->getClassMetadata($association['targetEntity']);
         }
 
-        return \implode('_', $aliases).'.'.$lastField;
+        return ($alias ?? $rootAlias).'.'.$lastField;
+    }
+
+    private static function makeAlias(array $aliasParts): string
+    {
+        $alias = \implode('_', $aliasParts);
+
+        // A DQL keyword can't be an alias, so an association named "order" or "group" gets an underscore.
+        return self::isReservedWord($alias) ? $alias.'_' : $alias;
+    }
+
+    private static function isReservedWord(string $word): bool
+    {
+        static $identifierType = null;
+
+        if (null === $identifierType) {
+            // Ask the DQL lexer instead of keeping our own list of keywords. The identifier token type is
+            // named differently in Doctrine ORM 2 and 3, so take it from a word that surely is an identifier.
+            $identifierType = self::tokenType('rulerAliasProbe');
+        }
+
+        return self::tokenType($word) !== $identifierType;
+    }
+
+    private static function tokenType(string $word): mixed
+    {
+        $lexer = new DqlLexer($word);
+        $lexer->moveNext();
+
+        // Doctrine lexer 1 and 2 give an array, 3 gives a token object.
+        $token = (array) $lexer->lookahead;
+
+        return $token['type'] ?? null;
     }
 }

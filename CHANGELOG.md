@@ -30,6 +30,9 @@ Unreleased
 * Doctrine ORM target: a path through a nested embeddable (`total.money.amount`) lost the parts
   between the embeddable and the field and built `products.total.amount`. The whole path is kept
   now, and a path that is not a field of the embeddable throws instead of reaching Doctrine.
+* Doctrine ORM target: an association named after a DQL keyword (`order`, `group`, `index`, …) built
+  an alias that can't be parsed, so the query failed with a syntax error. Such an alias gets an
+  underscore now (`group` → `group_`); other aliases are unchanged.
 
 v1.4.1
 ------

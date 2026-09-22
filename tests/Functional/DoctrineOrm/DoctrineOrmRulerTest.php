@@ -293,6 +293,17 @@ class DoctrineOrmRulerTest extends TestCase
                 ],
             ],
 
+            'association named like a dql keyword' => [
+                'group.name = :name',
+                ['name' => 'foo'],
+                '(group_.name = :name)',
+                [
+                    'products' => [
+                        new Join('LEFT', 'products.group', 'group_'),
+                    ],
+                ],
+            ],
+
             'nested embedded' => [
                 'total.money.amount > :amount',
                 ['amount' => 100],
