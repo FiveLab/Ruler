@@ -85,8 +85,8 @@ class DoctrineOrmRulerTest extends TestCase
         self::assertEquals($params, $qbParameters);
         self::assertEquals($joins, $qb->getDQLPart('join'));
 
-        // Try to get query for check correct DQL
-        $qb->getQuery();
+        // Parse the DQL to check that it is correct: getQuery() alone doesn't parse it.
+        $qb->getQuery()->getAST();
 
         $this->addToAssertionCount(1);
     }
@@ -185,7 +185,7 @@ class DoctrineOrmRulerTest extends TestCase
         self::assertEquals('category', $joins['products'][0]->getAlias());
 
         // The generated DQL must be valid - a duplicated join alias would throw here.
-        $qb->getQuery();
+        $qb->getQuery()->getAST();
 
         $this->addToAssertionCount(1);
     }
