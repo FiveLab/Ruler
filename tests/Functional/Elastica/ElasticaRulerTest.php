@@ -153,8 +153,8 @@ class ElasticaRulerTest extends TestCase
         return [
             'date' => [
                 'created > :created',
-                ['created' => new \DateTimeImmutable('2026-01-02 03:04:05', new \DateTimeZone('UTC'))],
-                ['range' => ['created' => ['gt' => '2026-01-02T03:04:05+00:00']]],
+                ['created' => new \DateTimeImmutable('2026-01-02 03:04:05.678', new \DateTimeZone('UTC'))],
+                ['range' => ['created' => ['gt' => '2026-01-02T03:04:05.678+00:00']]],
             ],
 
             'backed enum' => [

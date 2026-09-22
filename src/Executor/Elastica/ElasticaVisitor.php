@@ -148,7 +148,8 @@ readonly class ElasticaVisitor
         }
 
         if ($value instanceof \DateTimeInterface) {
-            return $value->format(\DateTimeInterface::ATOM);
+            // ISO 8601 with milliseconds: the precision of the "date" type, read by its default format.
+            return $value->format(\DateTimeInterface::RFC3339_EXTENDED);
         }
 
         if ($value instanceof \BackedEnum) {
