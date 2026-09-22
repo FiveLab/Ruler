@@ -98,6 +98,14 @@ readonly class DoctrineOrmVisitor
                     return ($alias ?? $rootAlias).'.'.$embeddedName;
                 }
 
+                if (\array_key_exists($part, $metadata->embeddedClasses)) {
+                    throw new \LogicException(\sprintf(
+                        'The path "%s" is not a field of the embeddable "%s".',
+                        $node->name,
+                        $part
+                    ));
+                }
+
                 throw new \LogicException(\sprintf(
                     'The part "%s" in path "%s" is no an association and not embeddable.',
                     $part,

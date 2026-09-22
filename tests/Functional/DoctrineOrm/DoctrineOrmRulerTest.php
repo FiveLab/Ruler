@@ -118,6 +118,19 @@ class DoctrineOrmRulerTest extends TestCase
     }
 
     #[Test]
+    public function shouldThrowErrorForUnknownFieldOfEmbeddable(): void
+    {
+        $qb = (new QueryBuilder($this->entityManager))
+            ->from(Product::class, 'products')
+            ->select('products');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The path "total.money.nosuch" is not a field of the embeddable "total".');
+
+        $this->ruler->apply($qb, 'total.money.nosuch > :amount', ['amount' => 100]);
+    }
+
+    #[Test]
     public function shouldThrowErrorForEscapedDot(): void
     {
         $qb = (new QueryBuilder($this->entityManager))
