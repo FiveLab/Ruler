@@ -10,9 +10,10 @@ Unreleased
 * Fixed field names that silently lost a part and built a query for a wrong field: a `0` part
   (`items.0.price`) is kept now, and a name with an empty part (`.5`, `a..b`, `a.`) or with a
   backslash that doesn't escape a dot (`a\`, `a\b`) throws a `SyntaxException`.
-* Elasticsearch target: a comparison where the left side is not a field (`:max > price`, `100 = id`),
-  where both sides are fields (`price > cost`), or an `and` / `or` over something that is not a
-  condition now throws a `LogicException` instead of silently building a meaningless query.
+* Fixed the Elasticsearch target silently building a meaningless query for a comparison that is not
+  "a field to a value" (`:max > price`, `100 = id`, `price > cost`) and for an `and` / `or` over
+  something that is not a condition (`id = :id and published`). They throw a `LogicException` now,
+  as does a rule that is not a condition at all (`published`), which failed with a `TypeError`.
 * Fixed parameter values for the Elasticsearch target: an object failed with a `TypeError` (inside
   a list it was encoded as a JSON object), and a filtered list (`array_filter`) was encoded as a
   JSON object, so `terms` silently matched nothing. Now a `DateTimeInterface` becomes an ISO 8601

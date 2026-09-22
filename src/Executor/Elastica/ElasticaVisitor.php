@@ -87,6 +87,24 @@ readonly class ElasticaVisitor
         ));
     }
 
+    /**
+     * Describe the node for an error message: the field "price", the parameter ":price", and so on.
+     *
+     * @param Node $node
+     *
+     * @return string
+     */
+    public static function describeNode(Node $node): string
+    {
+        return match (true) {
+            $node instanceof NameNode      => \sprintf('the field "%s"', $node->name),
+            $node instanceof ParameterNode => \sprintf('the parameter ":%s"', $node->name),
+            $node instanceof ConstantNode  => \sprintf('the constant "%s"', $node),
+            $node instanceof BinaryNode    => \sprintf('the condition with the operator "%s"', $node->operator),
+            default                        => \sprintf('the node "%s"', \get_class($node)),
+        };
+    }
+
     private function assertOperands(BinaryNode $node): void
     {
         // Elasticsearch builds a query clause for one field, so a comparison can't be reversed or made
@@ -120,17 +138,6 @@ readonly class ElasticaVisitor
                 self::describeNode($node->right)
             ));
         }
-    }
-
-    private static function describeNode(Node $node): string
-    {
-        return match (true) {
-            $node instanceof NameNode      => \sprintf('the field "%s"', $node->name),
-            $node instanceof ParameterNode => \sprintf('the parameter ":%s"', $node->name),
-            $node instanceof ConstantNode  => \sprintf('the constant "%s"', $node),
-            $node instanceof BinaryNode    => \sprintf('the condition with the operator "%s"', $node->operator),
-            default                        => \sprintf('the node "%s"', \get_class($node)),
-        };
     }
 
     private function normalizeValue(mixed $value, string $parameterName): array|string|int|float|bool|null

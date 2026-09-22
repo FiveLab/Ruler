@@ -88,6 +88,18 @@ class ElasticaRulerTest extends TestCase
     }
 
     #[Test]
+    #[TestWith(['published', 'The rule must be a condition, the field "published" given.'])]
+    #[TestWith(['(true)', 'The rule must be a condition, the constant "true" given.'])]
+    #[TestWith([':id', 'The rule must be a condition, the parameter ":id" given.'])]
+    public function shouldFailIfRuleIsNotCondition(string $rule, string $expectedMessage): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $this->ruler->apply(new RawSearchQuery(), $rule, ['id' => 123]);
+    }
+
+    #[Test]
     #[DataProvider('provideValuesForNormalize')]
     public function shouldNormalizeValue(string $rule, array $params, array $expectedQuery): void
     {
