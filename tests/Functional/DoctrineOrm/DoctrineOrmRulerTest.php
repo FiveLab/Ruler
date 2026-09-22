@@ -293,6 +293,12 @@ class DoctrineOrmRulerTest extends TestCase
                 ],
             ],
 
+            'nested embedded' => [
+                'total.money.amount > :amount',
+                ['amount' => 100],
+                '(products.total.money.amount > :amount)',
+            ],
+
             'embedded' => [
                 'amount.currency = :currency AND amount.amount > :amount',
                 ['currency' => 'USD', 'amount' > 100],

@@ -45,4 +45,7 @@ class Product
 
     #[ORM\Embedded(class: Money::class, columnPrefix: '')]
     private Money $amount;
+
+    #[ORM\Embedded(class: Total::class, columnPrefix: 'total_')]
+    private Total $total;
 }

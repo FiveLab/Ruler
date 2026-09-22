@@ -27,6 +27,9 @@ Unreleased
 * Doctrine ORM target: an escaped dot in a field name (`money\.amount`) built an invalid DQL
   condition (`.money.amount`). It throws a `LogicException` now — DQL field names can't contain
   a dot, so escaping is only for the Elasticsearch and ClickHouse targets.
+* Doctrine ORM target: a path through a nested embeddable (`total.money.amount`) lost the parts
+  between the embeddable and the field and built `products.total.amount`. The whole path is kept
+  now, and a path that is not a field of the embeddable throws instead of reaching Doctrine.
 
 v1.4.1
 ------

@@ -88,10 +88,11 @@ readonly class DoctrineOrmVisitor
 
         while (null !== ($part = \array_shift($parts))) {
             if (!$metadata->hasAssociation($part)) {
-                // Hasn't association, maybe embeddable?
-                if (\array_key_exists($part, $metadata->embeddedClasses)) {
-                    $embeddedName = $part.'.'.$lastField;
+                // Hasn't association, maybe embeddable? The rest of the path belongs to it, so that a nested
+                // embeddable ("total.money.amount") keeps all its parts.
+                $embeddedName = \implode('.', [$part, ...$parts, $lastField]);
 
+                if ($metadata->hasField($embeddedName)) {
                     return \count($aliases) ? \implode('_', $aliases).'.'.$embeddedName : $rootAlias.'.'.$embeddedName;
                 }
 
