@@ -24,9 +24,13 @@ use FiveLab\Component\Ruler\Query\RawSearchQuery;
 
 readonly class ElasticaVisitor
 {
+    private const LOGICAL_OPERATORS = ['and', 'or'];
+
     public function visit(Query|RawSearchQuery $target, Node $node, array $parameters, Operators $operators): array|string|int|float|bool|\Closure|null
     {
         if ($node instanceof BinaryNode) {
+            $this->assertOperands($node);
+
             $leftSide = $this->visit($target, $node->left, $parameters, $operators);
             $rightSide = $this->visit($target, $node->right, $parameters, $operators);
 
@@ -81,5 +85,51 @@ readonly class ElasticaVisitor
             'Unknown node "%s".',
             \get_class($node)
         ));
+    }
+
+    private function assertOperands(BinaryNode $node): void
+    {
+        // Elasticsearch builds a query clause for one field, so a comparison can't be reversed or made
+        // between two fields: such a rule silently builds a clause for a "field" named after the value.
+        if (\in_array($node->operator, self::LOGICAL_OPERATORS, true)) {
+            foreach ([$node->left, $node->right] as $side) {
+                if (!$side instanceof BinaryNode) {
+                    throw new \LogicException(\sprintf(
+                        'The operator "%s" can combine only conditions, %s given.',
+                        $node->operator,
+                        self::describeNode($side)
+                    ));
+                }
+            }
+
+            return;
+        }
+
+        if (!$node->left instanceof NameNode) {
+            throw new \LogicException(\sprintf(
+                'The left side of the operator "%s" must be a field, %s given.',
+                $node->operator,
+                self::describeNode($node->left)
+            ));
+        }
+
+        if (!$node->right instanceof ParameterNode && !$node->right instanceof ConstantNode) {
+            throw new \LogicException(\sprintf(
+                'The right side of the operator "%s" must be a parameter or a constant, %s given.',
+                $node->operator,
+                self::describeNode($node->right)
+            ));
+        }
+    }
+
+    private static function describeNode(Node $node): string
+    {
+        return match (true) {
+            $node instanceof NameNode      => \sprintf('the field "%s"', $node->name),
+            $node instanceof ParameterNode => \sprintf('the parameter ":%s"', $node->name),
+            $node instanceof ConstantNode  => \sprintf('the constant "%s"', $node),
+            $node instanceof BinaryNode    => \sprintf('the condition with the operator "%s"', $node->operator),
+            default                        => \sprintf('the node "%s"', \get_class($node)),
+        };
     }
 }

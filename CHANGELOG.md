@@ -10,6 +10,9 @@ Unreleased
 * Fixed field names that silently lost a part and built a query for a wrong field: a `0` part
   (`items.0.price`) is kept now, and a name with an empty part (`.5`, `a..b`, `a.`) or with a
   backslash that doesn't escape a dot (`a\`, `a\b`) throws a `SyntaxException`.
+* Elasticsearch target: a comparison where the left side is not a field (`:max > price`, `100 = id`),
+  where both sides are fields (`price > cost`), or an `and` / `or` over something that is not a
+  condition now throws a `LogicException` instead of silently building a meaningless query.
 
 v1.4.1
 ------

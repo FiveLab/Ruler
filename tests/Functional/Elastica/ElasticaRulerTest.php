@@ -74,6 +74,19 @@ class ElasticaRulerTest extends TestCase
     }
 
     #[Test]
+    #[TestWith([':amount > amount', 'The left side of the operator ">" must be a field, the parameter ":amount" given.'])]
+    #[TestWith(['100 = id', 'The left side of the operator "=" must be a field, the constant "100" given.'])]
+    #[TestWith(['amount > cost', 'The right side of the operator ">" must be a parameter or a constant, the field "cost" given.'])]
+    #[TestWith(['id = :id and published', 'The operator "and" can combine only conditions, the field "published" given.'])]
+    public function shouldFailIfOperandIsNotFieldAndValue(string $rule, string $expectedMessage): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $this->ruler->apply(new Query(), $rule, ['id' => 123, 'amount' => 100]);
+    }
+
+    #[Test]
     #[TestWith([new Query()])]
     #[TestWith([new RawSearchQuery()])]
     public function shouldCombineQueriesOnRepeatedApply(object $query): void
