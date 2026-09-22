@@ -135,13 +135,16 @@ readonly class ElasticaVisitor
 
     private function normalizeValue(mixed $value, string $parameterName): array|string|int|float|bool|null
     {
-        // Elasticsearch accepts only plain values, and an array must be a list: a filtered array
-        // (array_filter) keeps the original keys and would be encoded as a JSON object.
+        // Elasticsearch accepts only plain values. A list must stay a list: a filtered array (array_filter) keeps
+        // the original keys and would be encoded as a JSON object. An array with string keys is an object on
+        // purpose (a terms lookup: index, id, path), so it is kept as it is.
         if (\is_array($value)) {
-            return \array_values(\array_map(
+            $normalized = \array_map(
                 fn (mixed $item): array|string|int|float|bool|null => $this->normalizeValue($item, $parameterName),
                 $value
-            ));
+            );
+
+            return \array_filter(\array_keys($normalized), 'is_string') ? $normalized : \array_values($normalized);
         }
 
         if ($value instanceof \DateTimeInterface) {
@@ -158,7 +161,7 @@ readonly class ElasticaVisitor
 
         if (\is_object($value)) {
             throw new \LogicException(\sprintf(
-                'The value of the parameter "%s" must be a scalar, a date, a backed enum or a list of them, "%s" given.',
+                'The value of the parameter "%s" must be a scalar, a date, a backed enum, a stringable object or an array of them, "%s" given.',
                 $parameterName,
                 \get_class($value)
             ));

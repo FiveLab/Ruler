@@ -104,7 +104,7 @@ class ElasticaRulerTest extends TestCase
     public function shouldFailForObjectValue(object $query): void
     {
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('The value of the parameter "id" must be a scalar, a date, a backed enum or a list of them, "stdClass" given.');
+        $this->expectExceptionMessage('The value of the parameter "id" must be a scalar, a date, a backed enum, a stringable object or an array of them, "stdClass" given.');
 
         $this->ruler->apply($query, 'id = :id', ['id' => new \stdClass()]);
     }
@@ -173,6 +173,18 @@ class ElasticaRulerTest extends TestCase
                 'id in (:ids)',
                 ['ids' => \array_filter(['123', '', '124'])],
                 ['bool' => ['must' => [['terms' => ['id' => ['123', '124']]]]]],
+            ],
+
+            'list of objects' => [
+                'status in (:statuses)',
+                ['statuses' => [OrderStatus::Paid, $stringableId]],
+                ['bool' => ['must' => [['terms' => ['status' => ['paid', '9d46f5ca']]]]]],
+            ],
+
+            'terms lookup' => [
+                'followers in (:lookup)',
+                ['lookup' => ['index' => 'users', 'id' => $stringableId, 'path' => 'followers']],
+                ['bool' => ['must' => [['terms' => ['followers' => ['index' => 'users', 'id' => '9d46f5ca', 'path' => 'followers']]]]]],
             ],
         ];
     }
