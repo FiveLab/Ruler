@@ -10,6 +10,20 @@ Unreleased
 * Fixed field names that silently lost a part and built a query for a wrong field: a `0` part
   (`items.0.price`) is kept now, and a name with an empty part (`.5`, `a..b`, `a.`) or with a
   backslash that doesn't escape a dot (`a\`, `a\b`) throws a `SyntaxException`.
+* Fixed the Elasticsearch target silently building a meaningless query for a comparison that is not
+  "a field to a value" (`:max > price`, `100 = id`, `price > cost`) and for an `and` / `or` over
+  something that is not a condition (`id = :id and published`). They throw a `LogicException` now,
+  as does a rule that is not a condition at all (`published`), which failed with a `TypeError`.
+  **Behaviour change:** two kinds of rules that used to work throw now as well. A word on the right
+  side (`status = paid`) was compared as a string: pass the value as a parameter (`status = :status`).
+  A rule of a single parameter (`:query`) put its value into the request as the whole query: add
+  such a query to the request yourself.
+* Fixed parameter values for the Elasticsearch target: an object failed with a `TypeError` (inside
+  a list it went into the request as it was, so a date became a JSON object), and a filtered list
+  (`array_filter`) was encoded as a JSON object, so `terms` silently matched nothing. Now a
+  `DateTimeInterface` becomes an ISO 8601 string with milliseconds, a backed enum its value, a
+  `Stringable` a string, a list with missed keys is reindexed, and an array with string keys (a
+  terms lookup) is kept as an object. Any other object throws a `LogicException`.
 
 v1.4.1
 ------
