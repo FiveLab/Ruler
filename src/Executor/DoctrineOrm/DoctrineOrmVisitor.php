@@ -77,7 +77,7 @@ readonly class DoctrineOrmVisitor
         $lastField = \array_pop($parts);
         $aliases = [];
 
-        while ($part = \array_shift($parts)) {
+        while (null !== ($part = \array_shift($parts))) {
             if (!$metadata->hasAssociation($part)) {
                 // Hasn't association, maybe embeddable?
                 if (\array_key_exists($part, $metadata->embeddedClasses)) {

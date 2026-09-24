@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* Fixed composite specifications (`AndX`, `OrX`) breaking parameters when they rename a duplicated
+  one: renaming `:price` no longer changes `:price_min`, and a generated name (`price_1`) no longer
+  overwrites a parameter that already has this name.
+* Fixed field names that silently lost a part and built a query for a wrong field: a `0` part
+  (`items.0.price`) is kept now, and a name with an empty part (`.5`, `a..b`, `a.`) or with a
+  backslash that doesn't escape a dot (`a\`, `a\b`) throws a `SyntaxException`.
+
 v1.4.1
 ------
 

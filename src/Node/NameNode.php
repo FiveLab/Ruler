@@ -30,18 +30,20 @@ readonly class NameNode extends Node
     public function getSplittedParts(): array
     {
         $parts = \explode('.', $this->name);
+        $lastIndex = \count($parts) - 1;
         $splittedParts = [];
 
-        $path = '';
+        $path = null;
 
-        while ($part = \array_shift($parts)) {
-            if (\str_ends_with($part, '\\')) {
-                // Escape dot.
+        // Walk over all parts: a "0" or an empty part must not stop the loop and drop the rest of the path.
+        foreach ($parts as $index => $part) {
+            if ($index < $lastIndex && \str_ends_with($part, '\\')) {
+                // Escape dot (a backslash at the very end has no dot to escape).
                 $part = \substr($part, 0, -1);
-                $path .= $path ? '.'.$part : $part;
+                $path = null === $path ? $part : $path.'.'.$part;
             } else {
-                $splittedParts[] = $path ? $path.'.'.$part : $part;
-                $path = '';
+                $splittedParts[] = null === $path ? $part : $path.'.'.$part;
+                $path = null;
             }
         }
 

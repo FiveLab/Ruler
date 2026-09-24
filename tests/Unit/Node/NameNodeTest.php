@@ -25,6 +25,12 @@ class NameNodeTest extends TestCase
     #[TestWith(['foo.bar', ['foo', 'bar']])]
     #[TestWith(['foo\.bar.some', ['foo.bar', 'some']])]
     #[TestWith(['foo\.bar\.some', ['foo.bar.some']])]
+    #[TestWith(['items.0.price', ['items', '0', 'price']])]
+    #[TestWith(['0', ['0']])]
+    #[TestWith(['\.foo', ['.foo']])]
+    #[TestWith(['foo\.', ['foo.']])]
+    #[TestWith(['foo..bar', ['foo', '', 'bar']])]
+    #[TestWith(['foo\\', ['foo\\']])]
     public function shouldSuccessCreate(string $name, array $expectedSplittedParts): void
     {
         $node = new NameNode($name);

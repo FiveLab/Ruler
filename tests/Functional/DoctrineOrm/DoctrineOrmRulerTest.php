@@ -92,6 +92,19 @@ class DoctrineOrmRulerTest extends TestCase
     }
 
     #[Test]
+    public function shouldThrowErrorForZeroPartOfPath(): void
+    {
+        $qb = (new QueryBuilder($this->entityManager))
+            ->from(Product::class, 'products')
+            ->select('products');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The part "0" in path "category.0.key"');
+
+        $this->ruler->apply($qb, 'category.0.key = :key', ['key' => 'foo']);
+    }
+
+    #[Test]
     public function shouldThrowErrorIfRelationAndEmbeddedNotFound(): void
     {
         $qb = (new QueryBuilder($this->entityManager))

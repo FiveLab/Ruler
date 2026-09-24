@@ -68,6 +68,75 @@ class CompositeSpecificationTest extends TestCase
     }
 
     #[Test]
+    public function shouldNotChangeParametersWithSamePrefixOnFixDuplicates(): void
+    {
+        $spec = new CompositeSpecification(
+            'AND',
+            new SimpleSpecification('price > :price', ['price' => 10]),
+            new SimpleSpecification('price < :price and discount > :price_min', ['price' => 100, 'price_min' => 5])
+        );
+
+        self::assertEquals('(price > :price AND price < :price_1 and discount > :price_min)', $spec->getRule());
+        self::assertEquals([
+            'price'     => 10,
+            'price_1'   => 100,
+            'price_min' => 5,
+        ], $spec->getParameters());
+    }
+
+    #[Test]
+    public function shouldNotOverwriteExistingParameterOnFixDuplicates(): void
+    {
+        $spec = new CompositeSpecification(
+            'AND',
+            new SimpleSpecification('a > :price and b < :price_1', ['price' => 1, 'price_1' => 2]),
+            new SimpleSpecification('c = :price', ['price' => 3])
+        );
+
+        self::assertEquals('(a > :price and b < :price_1 AND c = :price_2)', $spec->getRule());
+        self::assertEquals([
+            'price'   => 1,
+            'price_1' => 2,
+            'price_2' => 3,
+        ], $spec->getParameters());
+    }
+
+    #[Test]
+    public function shouldNotRenameParameterToNameOfAnotherParameterInSameSpecification(): void
+    {
+        $spec = new CompositeSpecification(
+            'AND',
+            new SimpleSpecification('a = :price', ['price' => 1]),
+            new SimpleSpecification('c = :price and d = :price_1', ['price' => 3, 'price_1' => 4])
+        );
+
+        self::assertEquals('(a = :price AND c = :price_2 and d = :price_1)', $spec->getRule());
+        self::assertEquals([
+            'price'   => 1,
+            'price_2' => 3,
+            'price_1' => 4,
+        ], $spec->getParameters());
+    }
+
+    #[Test]
+    public function shouldSuccessFixDuplicatesOfNestedSpecifications(): void
+    {
+        $spec = new CompositeSpecification(
+            'AND',
+            new CompositeSpecification('OR', new SimpleSpecification('a = :p', ['p' => 1]), new SimpleSpecification('b = :p', ['p' => 2])),
+            new CompositeSpecification('OR', new SimpleSpecification('c = :p', ['p' => 3]), new SimpleSpecification('d = :p', ['p' => 4]))
+        );
+
+        self::assertEquals('((a = :p OR b = :p_1) AND (c = :p_2 OR d = :p_1_1))', $spec->getRule());
+        self::assertEquals([
+            'p'     => 1,
+            'p_1'   => 2,
+            'p_2'   => 3,
+            'p_1_1' => 4,
+        ], $spec->getParameters());
+    }
+
+    #[Test]
     public function shouldSuccessAddSpecifications(): void
     {
         $composite = new CompositeSpecification('AND');
