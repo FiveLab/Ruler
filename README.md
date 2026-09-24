@@ -31,7 +31,7 @@ Why Ruler?
 ----------
 
 * **One rule, many backends.** Reuse a filter across your database and your search index.
-* **Safe values.** Rule values are always bound as query parameters, never concatenated into the query.
+* **Safe values.** Rule values are passed as parameters and never written into the query by Ruler.
 * **Composable.** Build rules from reusable specifications (`and` / `or`, per-target overrides).
 * **Extensible.** Add your own operators or targets through small interfaces.
 * **Maintained.** PHP 8.2+, Doctrine ORM 2 & 3, actively developed — a drop-in idea for the
@@ -195,6 +195,9 @@ A few current constraints of the parser:
   (`name = :name`, not `name = 'John'`; `price > :min`, not `price > -5`).
 * Elasticsearch nested paths support a single level (`variants.name`).
 
+The full reference — precedence, constants, null checks, errors and the differences between the
+backends — is in [docs/rule-syntax.md](docs/rule-syntax.md) and [docs/targets.md](docs/targets.md).
+
 Specifications
 --------------
 
@@ -223,12 +226,21 @@ Extending
 * **Custom targets** — implement `TargetInterface` (or `IdentifiableTargetInterface`) to support
   another query builder.
 
+See [docs/extending.md](docs/extending.md) for complete examples.
+
+Documentation
+-------------
+
+* [Rule syntax](docs/rule-syntax.md) — operators, precedence, fields, parameters, constants, errors.
+* [Targets](docs/targets.md) — what Doctrine ORM, Elasticsearch and ClickHouse build from a rule.
+* [Extending](docs/extending.md) — custom operator handlers and custom targets.
+
 Security
 --------
 
-* **Rule values are safe.** Values from the parameters array are passed to the backend as bound
-  parameters (SQL) or structured values (Elasticsearch) — never concatenated into the query string —
-  so they are safe from injection.
+* **Rule values are safe.** Ruler never writes values from the parameters array into query text: the
+  SQL targets emit placeholders that Doctrine binds (or your ClickHouse client fills in with escaped
+  values), and Elasticsearch gets them as structured values — so they are safe from injection.
 * **The rule string is code, not input.** Field names and operators from the rule string are
   interpreted and written into the query. Do **not** build the rule string from untrusted user
   input. If users drive the filtering, keep the rule template static and let them supply only
