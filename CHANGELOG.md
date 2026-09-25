@@ -24,6 +24,17 @@ Unreleased
   `DateTimeInterface` becomes an ISO 8601 string with milliseconds, a backed enum its value, a
   `Stringable` a string, a list with missed keys is reindexed, and an array with string keys (a
   terms lookup) is kept as an object. Any other object throws a `LogicException`.
+* Fixed the Doctrine ORM target building invalid DQL (`.money.amount`) for an escaped dot in a
+  field name (`money\.amount`). It throws a `LogicException` now: a field of an embeddable is
+  written with a plain dot (`money.amount`), so escaping is only for the Elasticsearch and
+  ClickHouse targets.
+* Fixed the Doctrine ORM target losing the middle of a path through a nested embeddable:
+  `total.money.amount` became `products.total.amount`. The whole path is kept now, and a path that
+  is not a field of the embeddable (`total.money.nosuch`, `total.money`) throws a `LogicException`
+  instead of reaching Doctrine.
+* Fixed the Doctrine ORM target building an alias that can't be parsed for an association named
+  after a DQL keyword (`order`, `group`, `index`, …), so the query failed with a syntax error. Such
+  an alias gets an underscore now (`group` → `group_`); other aliases are unchanged.
 
 v1.4.1
 ------

@@ -28,6 +28,7 @@ use FiveLab\Component\Ruler\Target\DoctrineOrmTarget;
 use FiveLab\Component\Ruler\Tests\Functional\DoctrineOrm\Entities\Product;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class DoctrineOrmRulerTest extends TestCase
@@ -85,8 +86,8 @@ class DoctrineOrmRulerTest extends TestCase
         self::assertEquals($params, $qbParameters);
         self::assertEquals($joins, $qb->getDQLPart('join'));
 
-        // Try to get query for check correct DQL
-        $qb->getQuery();
+        // Parse the DQL to check that it is correct: getQuery() alone doesn't parse it.
+        $qb->getQuery()->getAST();
 
         $this->addToAssertionCount(1);
     }
@@ -112,9 +113,37 @@ class DoctrineOrmRulerTest extends TestCase
             ->select('products');
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('The part "foo" in path "foo.bar" is no an association and not embeddable.');
+        $this->expectExceptionMessage('The part "foo" in path "foo.bar" is not an association and not an embeddable.');
 
         $this->ruler->apply($qb, 'foo.bar', []);
+    }
+
+    #[Test]
+    #[TestWith(['total.money.nosuch'])]
+    #[TestWith(['total.money'])]
+    public function shouldThrowErrorForUnknownFieldOfEmbeddable(string $path): void
+    {
+        $qb = (new QueryBuilder($this->entityManager))
+            ->from(Product::class, 'products')
+            ->select('products');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage(\sprintf('The path "%s" is not a field of the embeddable "total".', $path));
+
+        $this->ruler->apply($qb, $path.' > :amount', ['amount' => 100]);
+    }
+
+    #[Test]
+    public function shouldThrowErrorForEscapedDot(): void
+    {
+        $qb = (new QueryBuilder($this->entityManager))
+            ->from(Product::class, 'products')
+            ->select('products');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The escaped dot in the field "amount\.amount" is not supported by the Doctrine ORM target.');
+
+        $this->ruler->apply($qb, 'amount\.amount > :amount', ['amount' => 100]);
     }
 
     #[Test]
@@ -159,7 +188,7 @@ class DoctrineOrmRulerTest extends TestCase
         self::assertEquals('category', $joins['products'][0]->getAlias());
 
         // The generated DQL must be valid - a duplicated join alias would throw here.
-        $qb->getQuery();
+        $qb->getQuery()->getAST();
 
         $this->addToAssertionCount(1);
     }
@@ -280,9 +309,26 @@ class DoctrineOrmRulerTest extends TestCase
                 ],
             ],
 
+            'association named like a dql keyword' => [
+                'group.name = :name',
+                ['name' => 'foo'],
+                '(group_.name = :name)',
+                [
+                    'products' => [
+                        new Join('LEFT', 'products.group', 'group_'),
+                    ],
+                ],
+            ],
+
+            'nested embedded' => [
+                'total.money.amount > :amount',
+                ['amount' => 100],
+                '(products.total.money.amount > :amount)',
+            ],
+
             'embedded' => [
                 'amount.currency = :currency AND amount.amount > :amount',
-                ['currency' => 'USD', 'amount' > 100],
+                ['currency' => 'USD', 'amount' => 100],
                 '((products.amount.currency = :currency) AND (products.amount.amount > :amount))',
             ],
         ];

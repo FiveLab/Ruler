@@ -14,6 +14,7 @@ declare(strict_types = 1);
 namespace FiveLab\Component\Ruler\Executor\DoctrineOrm;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Lexer as DqlLexer;
 use Doctrine\ORM\QueryBuilder;
 use FiveLab\Component\Ruler\Executor\ExecutionContext;
 use FiveLab\Component\Ruler\Node\BinaryNode;
@@ -41,14 +42,23 @@ readonly class DoctrineOrmVisitor
         }
 
         if ($node instanceof NameNode) {
-            $name = $context->get('rootAlias').'.'.$node->name;
+            $parts = $node->getSplittedParts();
 
-            if (\str_contains($node->name, '.')) {
-                // Maybe join detected.
-                $name = $this->detectJoins($target, $node, $context);
+            foreach ($parts as $part) {
+                if (\str_contains($part, '.')) {
+                    throw new \LogicException(\sprintf(
+                        'The escaped dot in the field "%s" is not supported by the Doctrine ORM target.',
+                        $node->name
+                    ));
+                }
             }
 
-            return $name;
+            if (\count($parts) > 1) {
+                // Maybe join detected.
+                return $this->detectJoins($target, $node, $context);
+            }
+
+            return $context->get('rootAlias').'.'.$node->name;
         }
 
         if ($node instanceof ParameterNode) {
@@ -75,46 +85,81 @@ readonly class DoctrineOrmVisitor
         $metadata = $this->entityManager->getClassMetadata($rootEntity);
 
         $lastField = \array_pop($parts);
-        $aliases = [];
+        $aliasParts = [];
+        $alias = null;
 
         while (null !== ($part = \array_shift($parts))) {
             if (!$metadata->hasAssociation($part)) {
-                // Hasn't association, maybe embeddable?
-                if (\array_key_exists($part, $metadata->embeddedClasses)) {
-                    $embeddedName = $part.'.'.$lastField;
+                // Hasn't association, maybe embeddable? The rest of the path belongs to it, so that a nested
+                // embeddable ("total.money.amount") keeps all its parts.
+                $embeddedName = \implode('.', [$part, ...$parts, $lastField]);
 
-                    return \count($aliases) ? \implode('_', $aliases).'.'.$embeddedName : $rootAlias.'.'.$embeddedName;
+                // Not hasField(): it is true for a nested embeddable too ("total.money"), which is not a field.
+                if (isset($metadata->fieldMappings[$embeddedName])) {
+                    return ($alias ?? $rootAlias).'.'.$embeddedName;
+                }
+
+                if (\array_key_exists($part, $metadata->embeddedClasses)) {
+                    throw new \LogicException(\sprintf(
+                        'The path "%s" is not a field of the embeddable "%s".',
+                        $node->name,
+                        $part
+                    ));
                 }
 
                 throw new \LogicException(\sprintf(
-                    'The part "%s" in path "%s" is no an association and not embeddable.',
+                    'The part "%s" in path "%s" is not an association and not an embeddable.',
                     $part,
                     $node->name
                 ));
             }
 
-            if (!\count($aliases)) {
-                // It's a first join. Join with root alias.
-                $context->add('joins', null, [
-                    'join'  => $context->get('rootAlias').'.'.$part,
-                    'alias' => $part,
-                ]);
+            $join = ($alias ?? $rootAlias).'.'.$part;
 
-                $aliases[] = $part;
-            } else {
-                $alias = \implode('_', $aliases);
-                $aliases[] = $part;
+            $aliasParts[] = $part;
+            $alias = self::makeAlias($aliasParts);
 
-                $context->add('joins', null, [
-                    'join'  => $alias.'.'.$part,
-                    'alias' => \implode('_', $aliases),
-                ]);
-            }
+            $context->add('joins', null, [
+                'join'  => $join,
+                'alias' => $alias,
+            ]);
 
             $association = $metadata->getAssociationMapping($part);
             $metadata = $this->entityManager->getClassMetadata($association['targetEntity']);
         }
 
-        return \implode('_', $aliases).'.'.$lastField;
+        return ($alias ?? $rootAlias).'.'.$lastField;
+    }
+
+    private static function makeAlias(array $aliasParts): string
+    {
+        $alias = \implode('_', $aliasParts);
+
+        // A DQL keyword can't be an alias, so an association named "order" or "group" gets an underscore.
+        return self::isReservedWord($alias) ? $alias.'_' : $alias;
+    }
+
+    private static function isReservedWord(string $word): bool
+    {
+        static $identifierType = null;
+
+        if (null === $identifierType) {
+            // Ask the DQL lexer instead of keeping our own list of keywords. The identifier token type is
+            // named differently in Doctrine ORM 2 and 3, so take it from a word that surely is an identifier.
+            $identifierType = self::tokenType('rulerAliasProbe');
+        }
+
+        return self::tokenType($word) !== $identifierType;
+    }
+
+    private static function tokenType(string $word): mixed
+    {
+        $lexer = new DqlLexer($word);
+        $lexer->moveNext();
+
+        // Doctrine lexer 1 and 2 give an array, 3 gives a token object.
+        $token = (array) $lexer->lookahead;
+
+        return $token['type'] ?? null;
     }
 }

@@ -45,4 +45,11 @@ class Product
 
     #[ORM\Embedded(class: Money::class, columnPrefix: '')]
     private Money $amount;
+
+    #[ORM\Embedded(class: Total::class, columnPrefix: 'total_')]
+    private Total $total;
+
+    #[ORM\ManyToOne(targetEntity: ProductGroup::class)]
+    #[ORM\JoinColumn(name: 'group_id', referencedColumnName: 'id')]
+    private ProductGroup $group;
 }
