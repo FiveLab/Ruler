@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+v1.5.0
+------
 
 * Fixed composite specifications (`AndX`, `OrX`) breaking parameters when they rename a duplicated
   one: renaming `:price` no longer changes `:price_min`, and a generated name (`price_1`) no longer
