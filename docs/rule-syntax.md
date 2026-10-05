@@ -160,7 +160,9 @@ Fields and paths
 ----------------
 
 A field name may contain Latin letters, digits, `_`, `.` and `\` (for escaping a dot), and must not
-start with a digit.
+start with a digit. Every part of a path must be non-empty, and a backslash must be followed by a
+dot: `a..b`, `a.`, `a\` and `a\b` are syntax errors. A numeric part is kept, so `items.0.price`
+stays a three-part path.
 
 The words `and`, `or`, `in` and `like` are read as operators, and `true`, `false` and `null` as
 constants (in any letter case), so fields with these names cannot be used in a rule.
@@ -187,7 +189,8 @@ price\.amount > :amount
 
 This is useful for Elasticsearch — `name\.keyword = :name` queries the `name.keyword` sub-field
 instead of building a nested query — and for ClickHouse, where the name is quoted with backticks
-(`` `price.amount` ``). Doctrine ORM field names cannot contain a dot, so do not escape dots there.
+(`` `price.amount` ``). Doctrine ORM field names cannot contain a dot, so an escaped dot throws a
+`LogicException` there — a field of an embeddable is written with a plain dot (`money.amount`).
 
 Remember that the backslash must reach the rule string: in PHP use single quotes
 (`'price\.amount > :amount'`) or double the backslash in double quotes (`"price\\.amount > :amount"`).
@@ -218,9 +221,54 @@ A few things to keep in mind:
 * **Use unique parameter names** when you call `apply()` several times on one query. Doctrine ORM
   sets parameters by name, so a new value silently replaces the old one (including a parameter you
   set on the query builder yourself) and changes the earlier condition. `ClickHouseQuery` throws a
-  `LogicException` instead.
-* **Elasticsearch expects plain values:** scalars and lists of scalars. See
-  [Targets](targets.md#values) for dates, enums and filtered arrays.
+  `LogicException` instead. See [Duplicated names](#duplicated-names) for what composite
+  specifications do here and where their renaming stops.
+* **Elasticsearch accepts plain values** and normalizes a date, a backed enum or a `Stringable`
+  object into one; any other object throws a `LogicException`. See [Targets](targets.md#values).
+
+### Duplicated names
+
+A composite specification (`AndX`, `OrX`) renames the duplicated parameters of the specifications
+it holds, adding an `_1`, `_2`, … suffix. The same rule — or the same reusable specification
+class — can therefore appear in one composite several times:
+
+```php
+$specification = new OrX(
+    new SimpleSpecification('status = :status', ['status' => 'new']),
+    new SimpleSpecification('status = :status', ['status' => 'paid'])
+);
+
+$specification->getRule();       // (status = :status OR status = :status_1)
+$specification->getParameters(); // ['status' => 'new', 'status_1' => 'paid']
+```
+
+Nested composites are renamed the same way, so an `AndX` of two `OrX` is safe too.
+
+The renaming stops at the composite: it only sees the parameters of the specifications inside it.
+Parameters from an earlier `apply()` or `applySpec()` call on the same query, and parameters you
+set on the query builder yourself, are not taken into account. Applying two such composites to one
+query leaves both conditions sharing the values of the second call:
+
+```php
+$ruler->applySpec($query, new OrX(
+    new SimpleSpecification('status = :status', ['status' => 'new']),
+    new SimpleSpecification('status = :status', ['status' => 'paid'])
+));
+
+$ruler->applySpec($query, new OrX(
+    new SimpleSpecification('status = :status', ['status' => 'shipped']),
+    new SimpleSpecification('status = :status', ['status' => 'done'])
+));
+```
+
+Both calls produce `(status = :status OR status = :status_1)`. Doctrine ORM ends up with the two
+conditions and a single pair of values, `status = 'shipped'` and `status_1 = 'done'`, so the first
+condition no longer matches `new` or `paid`. `ClickHouseQuery` throws a `LogicException` on the
+second call instead, and the Elasticsearch target is not affected: it puts the values into the
+query structure during `apply()`.
+
+Collect everything that belongs to one query into a single composite, or give the rules of the
+second call their own parameter names.
 
 Constants
 ---------
@@ -228,7 +276,7 @@ Constants
 | Constant       | Examples                  | Notes                                                    |
 |----------------|---------------------------|----------------------------------------------------------|
 | Integer        | `0`, `42`, `100500`       | Digits only.                                             |
-| Decimal        | `1.5`, `0.25`             | A dot between digits. `1e3` is a syntax error, `.5` builds a broken query — write `0.5`. |
+| Decimal        | `1.5`, `0.25`             | A dot between digits. `1e3` and `.5` are syntax errors — write `0.5`. |
 | Boolean        | `true`, `false`           | Case-insensitive.                                        |
 | Null           | `null`                    | Case-insensitive. See [Null checks](#null-checks).       |
 
@@ -275,8 +323,8 @@ Unexpected ")" around position 5 for expression "a = 1)".
 
 A rule that is valid but cannot be translated by a target throws at `apply()` time, for example
 `RuntimeException: Only one nested level supported.` for a deep path in Elasticsearch, or
-`LogicException: The part "foo" in path "foo.bar" is no an association and not embeddable.` for an
-unknown association in a Doctrine path.
+`LogicException: The part "foo" in path "foo.bar" is not an association and not an embeddable.` for
+an unknown association in a Doctrine path.
 
 Ruler does not check field names against your entities or mapping. An unknown field
 (`nosuchfield = :v`, `category.foo = :v`) passes `apply()`: Doctrine ORM and ClickHouse report it

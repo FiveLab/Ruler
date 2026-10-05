@@ -138,6 +138,10 @@ operators the parser recognizes are fixed (see the precedence table in
 [Rule syntax](rule-syntax.md#operators-and-precedence)), so `a ilike :b` or `a between :x and :y`
 stay syntax errors whatever handlers are registered.
 
+For Elasticsearch the shape of a comparison is checked by `ElasticaVisitor` before any handler is
+called, so a handler cannot make `:max > price`, `price > cost` or a rule that is not a condition
+work — see [Targets](targets.md#field-on-the-left-value-on-the-right).
+
 Custom targets
 --------------
 

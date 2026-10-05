@@ -184,7 +184,8 @@ parameters** (`:name`); the array you pass to `apply()` provides them.
 * **Null:** `field = null` / `field != null` become `IS NULL` / `IS NOT NULL` for SQL targets and an
   `exists` check for Elasticsearch (it has no `NULL`).
 * **Nested paths:** a dot builds joins (Doctrine) or a nested query (Elasticsearch). To treat a dot
-  as part of the field name, escape it: `money\.amount`.
+  as part of the field name, escape it: `name\.keyword` — for Elasticsearch and ClickHouse only,
+  Doctrine ORM field names cannot contain a dot.
 
 ### Good to know
 
@@ -217,6 +218,10 @@ $ruler->applySpec($query, $specification);
 
 `OrX`, `EmptySpecification` and `TargetableSpecification` (a single specification that carries a
 different rule per target, resolved with `SpecificationFilter::filterByTarget()`) are available too.
+
+A composite renames the duplicated parameters of its specifications (`:status`, `:status_1`, …),
+so one specification can appear in it several times. The renaming does not reach across separate
+`applySpec()` calls on one query — see [Duplicated names](docs/rule-syntax.md#duplicated-names).
 
 Extending
 ---------

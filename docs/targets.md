@@ -59,7 +59,8 @@ $ruler->apply($qb, 'category.key in (:categories) and price > :price', [
   combined with `AND`;
 * sets every entry of the parameters array with `setParameter()`. Parameters with other names stay,
   but **a parameter with the same name is replaced** — yours or one from an earlier `apply()` — which
-  silently changes the condition that used it, so keep parameter names unique;
+  silently changes the condition that used it, so keep parameter names unique
+  (see [Duplicated names](rule-syntax.md#duplicated-names));
 * adds the `LEFT JOIN`s the rule needs.
 
 ### Fields
@@ -83,7 +84,9 @@ again. **If the query builder already has an alias with the same name, Ruler reu
 not add a join — make sure your own alias `category` really is the `category` association.
 
 Because association names become aliases, an association named after a DQL keyword (`order`,
-`group`, …) cannot be used in a path: the generated DQL is invalid.
+`group`, `index`, …) would build an alias that DQL cannot parse, so such an alias gets an
+underscore: `group.name = :name` joins `products.group` as `group_` and compares `group_.name`.
+Other aliases are left as they are.
 
 Consequences of the joins worth knowing:
 
@@ -102,16 +105,22 @@ Consequences of the joins worth knowing:
 When a part of the path is an embeddable rather than an association, no join is added:
 `amount.currency = :currency` becomes `products.amount.currency = :currency`. An embeddable of a
 joined entity works the same way: the associations before it are joined, the embeddable is not.
-Only one embeddable level is supported: for an embeddable inside an embeddable the path is built
-wrong, and Doctrine rejects the query.
+An embeddable inside an embeddable works too: `total.money.amount` becomes
+`products.total.money.amount`.
+
+A path that reaches an embeddable but is not one of its fields throws a `LogicException`:
+`The path "total.money.nosuch" is not a field of the embeddable "total".` The embeddable itself
+(`total.money`) is not a field either and fails the same way.
 
 A part that is neither an association nor an embeddable throws a `LogicException`:
-`The part "foo" in path "foo.bar" is no an association and not embeddable.`
+`The part "foo" in path "foo.bar" is not an association and not an embeddable.`
 
 ### Escaped dots
 
-DQL field names cannot contain a dot, so escaped dots (`price\.amount`) do not make sense for this
-target — the generated DQL is invalid. Use escaping only with Elasticsearch and ClickHouse.
+DQL field names cannot contain a dot, so an escaped dot throws a `LogicException`:
+`The escaped dot in the field "price\.amount" is not supported by the Doctrine ORM target.` A field
+of an embeddable is written with a plain dot (`money.amount`); use escaping only with Elasticsearch
+and ClickHouse.
 
 ### Parameters
 
@@ -148,19 +157,34 @@ kept. When the request already has a query, the new one is combined with it:
 
 ### Values
 
-Parameter values are put into the query as they are, so pass scalars and lists of scalars:
+Elasticsearch accepts only plain values, so parameter values are normalized before they go into
+the query:
 
-* an object (`DateTimeInterface`, an enum) throws a `TypeError` in `apply()` — format dates as
-  strings and pass `$enum->value`;
-* an array for `in` must be a list: after `array_filter()` call `array_values()`, otherwise the
-  keys are kept and `terms` receives a JSON object instead of an array.
+* a `DateTimeInterface` becomes an ISO 8601 string with milliseconds — the precision of the `date`
+  type, read by its default format: `2026-01-02T03:04:05.678+00:00`;
+* a `BackedEnum` becomes its value, a `Stringable` object its string;
+* a list that lost its keys (`array_filter()`) is reindexed, so `terms` receives an array and not a
+  JSON object. An array with **string** keys is kept as an object on purpose — that is how a terms
+  lookup (`index`, `id`, `path`) is passed;
+* arrays are normalized item by item, so a list of dates or enums works as well;
+* any other object throws a `LogicException`: `The value of the parameter "date" must be a scalar, a
+  date, a backed enum, a stringable object or an array of them, "stdClass" given.`
 
 ### Field on the left, value on the right
 
 Every comparison becomes a query clause for one field, so the left side must be a field and the
-right side a parameter or a constant. `price > :min` works; `:max > price` or `price > cost` do not
-throw, but build a meaningless query (a clause for a "field" named after the value, or a comparison
-with the string `"cost"`).
+right side a parameter or a constant. `price > :min` works; anything else throws a `LogicException`
+in `apply()`:
+
+| Rule                     | Message                                                                               |
+|--------------------------|---------------------------------------------------------------------------------------|
+| `:max > price`           | `The left side of the operator ">" must be a field, the parameter ":max" given.`       |
+| `price > cost`           | `The right side of the operator ">" must be a parameter or a constant, the field "cost" given.` |
+| `id = :id and published` | `The operator "and" can combine only conditions, the field "published" given.`        |
+| `published`              | `The rule must be a condition, the field "published" given.`                          |
+
+A bare word on the right side is read as a field name, so `status = paid` fails the same way as
+`price > cost`: pass the value as a parameter (`status = :status`).
 
 ### Exact values: `term` and `terms`
 
