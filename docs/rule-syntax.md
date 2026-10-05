@@ -160,7 +160,9 @@ Fields and paths
 ----------------
 
 A field name may contain Latin letters, digits, `_`, `.` and `\` (for escaping a dot), and must not
-start with a digit.
+start with a digit. Every part of a path must be non-empty, and a backslash must be followed by a
+dot: `a..b`, `a.`, `a\` and `a\b` are syntax errors. A numeric part is kept, so `items.0.price`
+stays a three-part path.
 
 The words `and`, `or`, `in` and `like` are read as operators, and `true`, `false` and `null` as
 constants (in any letter case), so fields with these names cannot be used in a rule.
@@ -187,7 +189,8 @@ price\.amount > :amount
 
 This is useful for Elasticsearch — `name\.keyword = :name` queries the `name.keyword` sub-field
 instead of building a nested query — and for ClickHouse, where the name is quoted with backticks
-(`` `price.amount` ``). Doctrine ORM field names cannot contain a dot, so do not escape dots there.
+(`` `price.amount` ``). Doctrine ORM field names cannot contain a dot, so an escaped dot throws a
+`LogicException` there — a field of an embeddable is written with a plain dot (`money.amount`).
 
 Remember that the backslash must reach the rule string: in PHP use single quotes
 (`'price\.amount > :amount'`) or double the backslash in double quotes (`"price\\.amount > :amount"`).
@@ -220,8 +223,8 @@ A few things to keep in mind:
   set on the query builder yourself) and changes the earlier condition. `ClickHouseQuery` throws a
   `LogicException` instead. See [Duplicated names](#duplicated-names) for what composite
   specifications do here and where their renaming stops.
-* **Elasticsearch expects plain values:** scalars and lists of scalars. See
-  [Targets](targets.md#values) for dates, enums and filtered arrays.
+* **Elasticsearch accepts plain values** and normalizes a date, a backed enum or a `Stringable`
+  object into one; any other object throws a `LogicException`. See [Targets](targets.md#values).
 
 ### Duplicated names
 
@@ -273,7 +276,7 @@ Constants
 | Constant       | Examples                  | Notes                                                    |
 |----------------|---------------------------|----------------------------------------------------------|
 | Integer        | `0`, `42`, `100500`       | Digits only.                                             |
-| Decimal        | `1.5`, `0.25`             | A dot between digits. `1e3` is a syntax error, `.5` builds a broken query — write `0.5`. |
+| Decimal        | `1.5`, `0.25`             | A dot between digits. `1e3` and `.5` are syntax errors — write `0.5`. |
 | Boolean        | `true`, `false`           | Case-insensitive.                                        |
 | Null           | `null`                    | Case-insensitive. See [Null checks](#null-checks).       |
 
@@ -320,8 +323,8 @@ Unexpected ")" around position 5 for expression "a = 1)".
 
 A rule that is valid but cannot be translated by a target throws at `apply()` time, for example
 `RuntimeException: Only one nested level supported.` for a deep path in Elasticsearch, or
-`LogicException: The part "foo" in path "foo.bar" is no an association and not embeddable.` for an
-unknown association in a Doctrine path.
+`LogicException: The part "foo" in path "foo.bar" is not an association and not an embeddable.` for
+an unknown association in a Doctrine path.
 
 Ruler does not check field names against your entities or mapping. An unknown field
 (`nosuchfield = :v`, `category.foo = :v`) passes `apply()`: Doctrine ORM and ClickHouse report it
