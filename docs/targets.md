@@ -59,7 +59,8 @@ $ruler->apply($qb, 'category.key in (:categories) and price > :price', [
   combined with `AND`;
 * sets every entry of the parameters array with `setParameter()`. Parameters with other names stay,
   but **a parameter with the same name is replaced** — yours or one from an earlier `apply()` — which
-  silently changes the condition that used it, so keep parameter names unique;
+  silently changes the condition that used it, so keep parameter names unique
+  (see [Duplicated names](rule-syntax.md#duplicated-names));
 * adds the `LEFT JOIN`s the rule needs.
 
 ### Fields

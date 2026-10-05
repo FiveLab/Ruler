@@ -218,9 +218,54 @@ A few things to keep in mind:
 * **Use unique parameter names** when you call `apply()` several times on one query. Doctrine ORM
   sets parameters by name, so a new value silently replaces the old one (including a parameter you
   set on the query builder yourself) and changes the earlier condition. `ClickHouseQuery` throws a
-  `LogicException` instead.
+  `LogicException` instead. See [Duplicated names](#duplicated-names) for what composite
+  specifications do here and where their renaming stops.
 * **Elasticsearch expects plain values:** scalars and lists of scalars. See
   [Targets](targets.md#values) for dates, enums and filtered arrays.
+
+### Duplicated names
+
+A composite specification (`AndX`, `OrX`) renames the duplicated parameters of the specifications
+it holds, adding an `_1`, `_2`, … suffix. The same rule — or the same reusable specification
+class — can therefore appear in one composite several times:
+
+```php
+$specification = new OrX(
+    new SimpleSpecification('status = :status', ['status' => 'new']),
+    new SimpleSpecification('status = :status', ['status' => 'paid'])
+);
+
+$specification->getRule();       // (status = :status OR status = :status_1)
+$specification->getParameters(); // ['status' => 'new', 'status_1' => 'paid']
+```
+
+Nested composites are renamed the same way, so an `AndX` of two `OrX` is safe too.
+
+The renaming stops at the composite: it only sees the parameters of the specifications inside it.
+Parameters from an earlier `apply()` or `applySpec()` call on the same query, and parameters you
+set on the query builder yourself, are not taken into account. Applying two such composites to one
+query leaves both conditions sharing the values of the second call:
+
+```php
+$ruler->applySpec($query, new OrX(
+    new SimpleSpecification('status = :status', ['status' => 'new']),
+    new SimpleSpecification('status = :status', ['status' => 'paid'])
+));
+
+$ruler->applySpec($query, new OrX(
+    new SimpleSpecification('status = :status', ['status' => 'shipped']),
+    new SimpleSpecification('status = :status', ['status' => 'done'])
+));
+```
+
+Both calls produce `(status = :status OR status = :status_1)`. Doctrine ORM ends up with the two
+conditions and a single pair of values, `status = 'shipped'` and `status_1 = 'done'`, so the first
+condition no longer matches `new` or `paid`. `ClickHouseQuery` throws a `LogicException` on the
+second call instead, and the Elasticsearch target is not affected: it puts the values into the
+query structure during `apply()`.
+
+Collect everything that belongs to one query into a single composite, or give the rules of the
+second call their own parameter names.
 
 Constants
 ---------

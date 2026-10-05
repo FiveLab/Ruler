@@ -218,6 +218,10 @@ $ruler->applySpec($query, $specification);
 `OrX`, `EmptySpecification` and `TargetableSpecification` (a single specification that carries a
 different rule per target, resolved with `SpecificationFilter::filterByTarget()`) are available too.
 
+A composite renames the duplicated parameters of its specifications (`:status`, `:status_1`, …),
+so one specification can appear in it several times. The renaming does not reach across separate
+`applySpec()` calls on one query — see [Duplicated names](docs/rule-syntax.md#duplicated-names).
+
 Extending
 ---------
 
